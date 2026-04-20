@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "name": "Oso Polar de Lujo",
+    "price": 29.99,
+    "category": "amigurumi",
+    "badge": "bestseller",
+    "emoji": "🐻",
+    "img": "https://picsum.photos/seed/oso-polar/400/400.jpg",
+    "reviews": 124,
+    "desc": "Un oso polar tejido con algodón egipcio de la más alta calidad."
+  },
+  {
+    "id": 2,
+    "name": "Pixel Heart",
+    "price": 15.00,
+    "category": "pixelart",
+    "badge": "new",
+    "emoji": "❤️",
+    "img": "https://picsum.photos/seed/pixel-heart/400/400.jpg",
+    "reviews": 45,
+    "desc": "Un pequeño corazón de pixel art perfecto para decorar tu escritorio."
+  },
+  {
+    "id": 3,
+    "name": "Caja de Hilos",
+    "price": 12.50,
+    "category": "accesorios",
+    "badge": null,
+    "emoji": "🧶",
+    "img": "https://picsum.photos/seed/hilos/400/400.jpg",
+    "reviews": 20,
+    "desc": "Surtido de 5 hilos de colores vivos para tus propias creaciones."
+  }
+]
