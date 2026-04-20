@@ -6,6 +6,10 @@
 <title>Pixushop — Tu tienda creativa</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+<!-- SDK de Stripe -->
+<script src="https://js.stripe.com/v3/"></script>
+<!-- SDK de PayPal -->
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=EUR"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -28,542 +32,484 @@ tailwind.config = {
   * { font-family: 'Inter', sans-serif; }
   html { scroll-behavior: smooth; }
   body { background: #FFFBF5; }
-
+  
+  /* Animaciones previas... */
   @keyframes fadeInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes float { 0%,100% { transform:translateY(0px); } 50% { transform:translateY(-12px); } }
-  @keyframes pulse-soft { 0%,100% { transform:scale(1); } 50% { transform:scale(1.05); } }
-  @keyframes shimmer { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
-  @keyframes heartBeat { 0%{transform:scale(1)} 15%{transform:scale(1.15)} 30%{transform:scale(1)} 45%{transform:scale(1.1)} 60%{transform:scale(1)} }
-  @keyframes slideInRight { from{transform:translateX(100%)} to{transform:translateX(0)} }
-  @keyframes slideOutRight { from{transform:translateX(0)} to{transform:translateX(100%)} }
-  @keyframes bounceIn { 0%{transform:scale(0.3);opacity:0} 50%{transform:scale(1.05)} 70%{transform:scale(0.95)} 100%{transform:scale(1);opacity:1} }
-  @keyframes confetti { 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(400px) rotate(720deg);opacity:0} }
-
   .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity:0; }
-  .delay-1 { animation-delay: 0.1s; }
-  .delay-2 { animation-delay: 0.2s; }
-  .delay-3 { animation-delay: 0.3s; }
-  .delay-4 { animation-delay: 0.4s; }
-  .delay-5 { animation-delay: 0.5s; }
-  .float-anim { animation: float 4s ease-in-out infinite; }
-  .heart-beat { animation: heartBeat 1.5s ease-in-out infinite; }
-  .bounce-in { animation: bounceIn 0.6s ease-out forwards; }
-
+  
   .cart-open { animation: slideInRight 0.3s ease-out forwards; }
   .cart-close { animation: slideOutRight 0.3s ease-in forwards; }
+  @keyframes slideInRight { from{transform:translateX(100%)} to{transform:translateX(0)} }
+  @keyframes slideOutRight { from{transform:translateX(0)} to{transform:translateX(100%)} }
 
-  .product-card:hover .product-img { transform: scale(1.08); }
-  .product-card:hover { box-shadow: 0 20px 60px rgba(14, 165, 233, 0.15); transform: translateY(-6px); }
-  .product-card { transition: all 0.4s cubic-bezier(0.4,0,0.2,1); }
+  .product-card:hover { box-shadow: 0 20px 60px rgba(14, 165, 233, 0.15); transform: translateY(-6px); transition: all 0.4s; }
+  .product-card:hover .product-img { transform: scale(1.08); transition: transform 0.5s; }
 
   .category-btn.active { background: #0EA5E9; color: white; border-color: #0EA5E9; }
-
+  
   .shimmer-btn {
-    background: linear-gradient(90deg, #0EA5E9 0%, #38BDF8 25%, #0EA5E9 50%, #38BDF8 75%, #0EA5E9 100%);
+    background: linear-gradient(90deg, #0EA5E9 0%, #38BDF8 50%, #0EA5E9 100%);
     background-size: 200% 100%;
     animation: shimmer 3s linear infinite;
   }
+  @keyframes shimmer { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
 
   .toast-enter { animation: fadeInUp 0.4s ease-out forwards; }
-
-  ::-webkit-scrollbar { width: 8px; }
-  ::-webkit-scrollbar-track { background: #FFF1F2; }
-  ::-webkit-scrollbar-thumb { background: #FDA4AF; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #D4616E; }
-
-  .hero-gradient {
-    background: linear-gradient(135deg, #F0F9FF 0%, #FFFBEB 40%, #FFF1F2 70%, #F0F7F0 100%);
-  }
-
-  .text-gradient {
-    background: linear-gradient(135deg, #0EA5E9, #0284C7);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .badge-new { background: linear-gradient(135deg, #0EA5E9, #38BDF8); color: white; }
-  .badge-sale { background: #4A8F4A; color: white; }
-
-  input:focus, textarea:focus { outline: none; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2); border-color: #0EA5E9; }
   
-  .loading-skeleton {
-    background: #e0e0e0;
-    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
-    border-radius: 8px;
-    background-size: 200% 100%;
-    animation: 1.5s shine linear infinite;
-  }
+  .hero-gradient { background: linear-gradient(135deg, #F0F9FF 0%, #FFFBEB 40%, #FFF1F2 70%, #F0F7F0 100%); }
+  .text-gradient { background: linear-gradient(135deg, #0EA5E9, #0284C7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  
+  .badge-new { background: linear-gradient(135deg, #0EA5E9, #38BDF8); color: white; }
+  .loading-skeleton { background: #e0e0e0; background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%); background-size: 200% 100%; animation: 1.5s shine linear infinite; }
   @keyframes shine { to { background-position-x: -200%; } }
-
-  /* Estilos para la galería de fotos */
-  .thumbnail-active { border-color: #0EA5E9; ring-width: 2px; }
-  .cursor-pointer-img { cursor: pointer; }
 </style>
 </head>
 <body class="text-brown-600 antialiased">
 
-<!-- TOAST CONTAINER -->
+<!-- TOAST -->
 <div id="toastContainer" class="fixed top-24 right-4 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
 <!-- NAVBAR -->
-<nav class="fixed top-0 left-0 right-0 z-50 bg-cream/80 backdrop-blur-xl border-b border-rose-100/60 transition-all duration-300" id="navbar">
+<nav class="fixed top-0 left-0 right-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-rose-100/60 transition-all" id="navbar">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16 md:h-20">
       <a href="#" class="flex items-center gap-2">
-        <span class="text-2xl heart-beat">✨</span>
+        <span class="text-2xl">✨</span>
         <span class="text-xl md:text-2xl font-bold text-gradient">Pixushop</span>
       </a>
       <div class="hidden md:flex items-center gap-8">
-        <a href="#catalogo" class="text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Catálogo</a>
-        <a href="#nosotros" class="text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Nuestra Historia</a>
-        <a href="#testimonios" class="text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Opiniones</a>
+        <a href="#catalogo" class="text-sm font-medium text-brown-400 hover:text-brand-500">Catálogo</a>
+        <a href="#nosotros" class="text-sm font-medium text-brown-400 hover:text-brand-500">Historia</a>
       </div>
       <div class="flex items-center gap-3">
-        <button onclick="toggleCart()" class="relative p-2 rounded-full hover:bg-brand-50 transition-colors group">
-          <span class="iconify w-6 h-6 text-brown-400 group-hover:text-brand-500 transition-colors" data-icon="lucide:shopping-bag"></span>
+        <button onclick="toggleCart()" class="relative p-2 rounded-full hover:bg-brand-50 group">
+          <span class="iconify w-6 h-6 text-brown-400 group-hover:text-brand-500" data-icon="lucide:shopping-bag"></span>
           <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
         </button>
-        <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-full hover:bg-brand-50 transition-colors">
-          <span class="iconify w-6 h-6 text-brown-400" data-icon="lucide:menu" id="menuIcon"></span>
-        </button>
+        <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-full hover:bg-brand-50"><span class="iconify w-6 h-6 text-brown-400" data-icon="lucide:menu"></span></button>
       </div>
     </div>
   </div>
-  <div id="mobileMenu" class="md:hidden hidden border-t border-rose-100/60 bg-cream/95 backdrop-blur-xl">
-    <div class="px-4 py-4 flex flex-col gap-3">
-      <a href="#catalogo" onclick="toggleMobileMenu()" class="py-2 text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Catálogo</a>
-      <a href="#nosotros" onclick="toggleMobileMenu()" class="py-2 text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Nuestra Historia</a>
-      <a href="#testimonios" onclick="toggleMobileMenu()" class="py-2 text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Opiniones</a>
-    </div>
+  <div id="mobileMenu" class="md:hidden hidden border-t border-rose-100/60 bg-cream/95 backdrop-blur-xl px-4 py-4 flex flex-col gap-3">
+    <a href="#catalogo" class="py-2 text-sm font-medium">Catálogo</a>
+    <a href="#nosotros" class="py-2 text-sm font-medium">Historia</a>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero-gradient pt-24 md:pt-32 pb-16 md:pb-24 relative overflow-hidden">
-  <div class="absolute top-20 left-10 w-72 h-72 bg-brand-100/30 rounded-full blur-[100px]"></div>
-  <div class="absolute bottom-10 right-10 w-96 h-96 bg-rose-200/30 rounded-full blur-[120px]"></div>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-    <div class="grid lg:grid-cols-2 gap-12 items-center">
-      <div class="text-center lg:text-left">
-        <div class="fade-in-up inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm border border-brand-200/50 rounded-full px-4 py-1.5 mb-6">
-          <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
-          <span class="text-xs font-medium text-brown-400">Creatividad sin límites ✨</span>
-        </div>
-        <h1 class="fade-in-up delay-1 text-4xl md:text-5xl lg:text-6xl font-extrabold text-brown-600 leading-[1.1] tracking-tight mb-6">
-          Tu tienda, <span class="text-gradient">tu estilo</span>
-        </h1>
-        <p class="fade-in-up delay-2 text-lg md:text-xl text-brown-300 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
-          Descubre productos únicos hechos con pasión. Desde Pixel Art hasta Amigurumis, en Pixushop encuentras todo lo que necesitas. 🎨
-        </p>
-        <div class="fade-in-up delay-3 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-          <a href="#catalogo" class="shimmer-btn text-white font-semibold px-8 py-4 rounded-full text-sm inline-flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-brand-500/20 transition-shadow">
-            Ver Catálogo
-            <span class="iconify w-4 h-4" data-icon="lucide:arrow-right"></span>
-          </a>
-        </div>
-        <div class="fade-in-up delay-4 flex items-center gap-6 mt-8 justify-center lg:justify-start">
-          <div class="flex -space-x-3">
-            <img src="https://picsum.photos/seed/client1/40/40.jpg" class="w-10 h-10 rounded-full border-2 border-white">
-            <img src="https://picsum.photos/seed/client2/40/40.jpg" class="w-10 h-10 rounded-full border-2 border-white">
-            <img src="https://picsum.photos/seed/client3/40/40.jpg" class="w-10 h-10 rounded-full border-2 border-white">
-            <div class="w-10 h-10 rounded-full border-2 border-white bg-brand-100 flex items-center justify-center text-[10px] font-bold text-brand-500">+2k</div>
-          </div>
-          <div>
-            <div class="flex items-center gap-1 text-warm-400">
-              <span class="iconify w-4 h-4" data-icon="lucide:star" style="fill:currentColor"></span><span class="iconify w-4 h-4" data-icon="lucide:star" style="fill:currentColor"></span><span class="iconify w-4 h-4" data-icon="lucide:star" style="fill:currentColor"></span><span class="iconify w-4 h-4" data-icon="lucide:star" style="fill:currentColor"></span><span class="iconify w-4 h-4" data-icon="lucide:star" style="fill:currentColor"></span>
-            </div>
-            <p class="text-xs text-brown-300 mt-0.5">+500 clientes felices</p>
-          </div>
-        </div>
-      </div>
-      <div class="fade-in-up delay-3 relative flex justify-center">
-        <div class="relative float-anim">
-          <div class="absolute -inset-8 bg-brand-200/20 rounded-full blur-2xl"></div>
-          <img src="https://picsum.photos/seed/pixushop-hero/500/500.jpg" alt="Pixushop" class="relative w-72 h-72 md:w-96 md:h-96 rounded-[3rem] object-cover shadow-2xl shadow-brand-500/10 border border-brand-200/30">
-          <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl p-3 shadow-lg shadow-brown-200/20 border border-rose-100/50 bounce-in">
-            <div class="flex items-center gap-2"><span class="text-2xl">🧸</span><div><p class="text-xs font-bold text-brown-500">Bestseller</p><p class="text-[10px] text-brown-300">+500 vendidos</p></div></div>
-          </div>
-          <div class="absolute -top-4 -right-4 bg-white rounded-2xl p-3 shadow-lg shadow-brown-200/20 border border-warm-100/50 bounce-in" style="animation-delay:0.3s">
-            <div class="flex items-center gap-2"><span class="text-2xl">🎮</span><div><p class="text-xs font-bold text-brown-500">Nuevo</p><p class="text-[10px] text-brown-300">Esta semana</p></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TRUST BAR -->
-<section class="py-8 border-y border-rose-100/60 bg-white/50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-      <div class="flex items-center gap-3 justify-center"><span class="iconify w-8 h-8 text-brand-400" data-icon="lucide:zap"></span><div><p class="text-sm font-bold text-brown-500">Envío Rápido</p><p class="text-xs text-brown-300">24/48 horas</p></div></div>
-      <div class="flex items-center gap-3 justify-center"><span class="iconify w-8 h-8 text-brand-400" data-icon="lucide:shield-check"></span><div><p class="text-sm font-bold text-brown-500">Pago Seguro</p><p class="text-xs text-brown-300">100% Encriptado</p></div></div>
-      <div class="flex items-center gap-3 justify-center"><span class="iconify w-8 h-8 text-brand-400" data-icon="lucide:heart-handshake"></span><div><p class="text-sm font-bold text-brown-500">Garantía</p><p class="text-xs text-brown-300">Satisfacción total</p></div></div>
-      <div class="flex items-center gap-3 justify-center"><span class="iconify w-8 h-8 text-brand-400" data-icon="lucide:gift"></span><div><p class="text-sm font-bold text-brown-500">Gift Wrap</p><p class="text-xs text-brown-300">Para regalar</p></div></div>
-    </div>
+<section class="hero-gradient pt-24 md:pt-32 pb-16 relative overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 relative text-center">
+    <h1 class="text-4xl md:text-6xl font-extrabold text-brown-600 mb-6 fade-in-up">Tu tienda, <span class="text-gradient">tu estilo</span></h1>
+    <a href="#catalogo" class="shimmer-btn text-white font-semibold px-8 py-4 rounded-full inline-block hover:shadow-lg transition-shadow fade-in-up delay-1">Ver Catálogo</a>
   </div>
 </section>
 
 <!-- CATÁLOGO -->
-<section id="catalogo" class="py-16 md:py-24">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12">
-      <span class="text-xs font-semibold uppercase tracking-widest text-brand-400 mb-3 block">Colección 2026</span>
-      <h2 class="text-3xl md:text-4xl font-bold text-brown-600 mb-4">Nuestros Productos</h2>
-    </div>
+<section id="catalogo" class="py-16">
+  <div class="max-w-7xl mx-auto px-4">
     <div class="flex flex-wrap justify-center gap-2 mb-10" id="filters">
-      <button onclick="filterProducts('all')" class="category-btn active px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brand-500 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">Todos</button>
-      <button onclick="filterProducts('amigurumi')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">🧶 Amigurumi</button>
-      <button onclick="filterProducts('pixelart')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">👾 Pixel Art</button>
-      <button onclick="filterProducts('accesorios')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">🎨 Accesorios</button>
+      <button onclick="filterProducts('all')" class="category-btn active px-5 py-2 rounded-full text-sm border border-brand-200">Todos</button>
+      <button onclick="filterProducts('amigurumi')" class="category-btn px-5 py-2 rounded-full text-sm border border-brand-200">Amigurumi</button>
+      <button onclick="filterProducts('pixelart')" class="category-btn px-5 py-2 rounded-full text-sm border border-brand-200">Pixel Art</button>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" id="productsGrid">
-      <div class="col-span-2 md:col-span-3 lg:col-span-4 h-64 rounded-2xl loading-skeleton flex items-center justify-center text-brown-300">
-        Cargando catálogo...
-      </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="productsGrid">
+      <div class="col-span-4 h-64 rounded-2xl loading-skeleton flex items-center justify-center text-brown-300">Cargando...</div>
     </div>
   </div>
 </section>
-
-<!-- NOSOTROS -->
-<section id="nosotros" class="py-16 md:py-24 bg-white/60">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid lg:grid-cols-2 gap-12 items-center">
-      <div class="relative"><img src="https://picsum.photos/seed/pixushop-artist/600/700.jpg" alt="Equipo" class="rounded-[2rem] w-full h-[400px] md:h-[500px] object-cover shadow-xl shadow-brand-500/10"><div class="absolute -bottom-6 -right-6 bg-white rounded-2xl p-5 shadow-lg border border-brand-100/50"><p class="text-3xl font-bold text-gradient">5+</p><p class="text-xs text-brown-300 mt-1">Años de<br>creatividad</p></div></div>
-      <div><span class="text-xs font-semibold uppercase tracking-widest text-brand-400 mb-3 block">Nuestra Historia</span><h2 class="text-3xl md:text-4xl font-bold text-brown-600 mb-6">El origen de Pixushop ✨</h2><p class="text-brown-300 leading-relaxed mb-4">Pixushop nació con la idea de fusionar lo artesanal con lo digital.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer class="bg-brown-600 text-brown-100 pt-16 pb-8">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-      <div class="col-span-2 md:col-span-1"><div class="flex items-center gap-2 mb-4"><span class="text-2xl">✨</span><span class="text-lg font-bold text-white">Pixushop</span></div><p class="text-sm text-brown-200 leading-relaxed mb-4">Tu tienda creativa de confianza.</p></div>
-      <div><h4 class="text-sm font-bold text-white mb-4">Tienda</h4><ul class="flex flex-col gap-2"><li><a href="#catalogo" class="text-sm text-brown-200 hover:text-brand-300 transition-colors">Catálogo</a></li></ul></div>
-      <div><h4 class="text-sm font-bold text-white mb-4">Ayuda</h4><ul class="flex flex-col gap-2"><li><a href="#" class="text-sm text-brown-200 hover:text-brand-300 transition-colors">Contacto</a></li></ul></div>
-    </div>
-    <div class="border-t border-brown-500 pt-8 text-center"><p class="text-xs text-brown-300">© 2025 Pixushop. Todos los derechos reservados.</p></div>
-  </div>
-</footer>
 
 <!-- CART SIDEBAR -->
 <div id="cartOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] hidden" onclick="toggleCart()"></div>
 <div id="cartSidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-cream z-[70] hidden flex-col shadow-2xl">
   <div class="flex items-center justify-between p-6 border-b border-rose-100/60">
     <div class="flex items-center gap-2"><span class="iconify w-5 h-5 text-brand-400" data-icon="lucide:shopping-bag"></span><h3 class="text-lg font-bold text-brown-600">Tu Carrito</h3><span id="cartItemsCount" class="text-xs bg-brand-100 text-brand-500 px-2 py-0.5 rounded-full font-semibold">0</span></div>
-    <button onclick="toggleCart()" class="p-2 hover:bg-brand-50 rounded-full transition-colors"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button>
+    <button onclick="toggleCart()" class="p-2 hover:bg-brand-50"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button>
   </div>
   <div class="flex-1 overflow-y-auto p-6" id="cartItems"></div>
   <div id="cartFooter" class="hidden border-t border-rose-100/60 p-6 bg-white/50">
-    <div class="flex items-center justify-between mb-4 pt-2 border-t border-rose-100/60">
-      <span class="text-base font-bold text-brown-600">Total</span>
-      <span id="cartTotal" class="text-lg font-bold text-gradient">0,00 €</span>
-    </div>
-    <button onclick="alert('¡Gracias por probar Pixushop!')" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full text-sm hover:shadow-lg hover:shadow-brand-500/20 transition-shadow flex items-center justify-center gap-2">Proceder al Pago <span class="iconify w-4 h-4" data-icon="lucide:arrow-right"></span></button>
+    <div class="flex justify-between mb-2"><span class="text-sm text-brown-300">Subtotal</span><span id="cartSubtotal" class="text-sm font-semibold text-brown-500">0,00 €</span></div>
+    <div class="flex justify-between mb-4 pt-2 border-t border-rose-100/60"><span class="text-base font-bold text-brown-600">Total</span><span id="cartTotal" class="text-lg font-bold text-gradient">0,00 €</span></div>
+    <button onclick="openCheckout()" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full hover:shadow-lg transition-shadow flex items-center justify-center gap-2">Proceder al Pago <span class="iconify w-4 h-4" data-icon="lucide:arrow-right"></span></button>
   </div>
 </div>
 
-<!-- MODAL PRODUCTO CON GALERÍA -->
+<!-- MODAL PRODUCTO -->
 <div id="productModal" class="fixed inset-0 z-[80] hidden">
   <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeProductModal()"></div>
-  <div class="absolute inset-4 md:inset-10 lg:inset-y-10 lg:inset-x-[20%] bg-cream rounded-[2rem] overflow-hidden flex flex-col shadow-2xl">
-    <div class="flex items-center justify-between p-6 border-b border-rose-100/60"><span class="text-xs font-medium text-brown-300">Detalle</span><button onclick="closeProductModal()" class="p-2 hover:bg-brand-50 rounded-full transition-colors"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button></div>
-    <div class="flex-1 overflow-y-auto p-6 md:p-8">
-      <div class="grid md:grid-cols-2 gap-8">
-        <!-- COLUMNA IMÁGENES -->
-        <div class="flex flex-col gap-4">
-          <!-- Imagen Principal -->
-          <div class="relative w-full aspect-square rounded-2xl overflow-hidden border border-brand-100/50 bg-white">
-             <img id="modalMainImage" src="" alt="" class="w-full h-full object-cover transition-opacity duration-300">
-          </div>
-          <!-- Galería de Miniaturas (Solo si hay más de 1) -->
-          <div id="modalGallery" class="flex gap-2 overflow-x-auto pb-2 hidden">
-            <!-- Las miniaturas se inyectan con JS -->
-          </div>
+  <div class="absolute inset-4 md:inset-10 bg-cream rounded-[2rem] overflow-hidden flex flex-col shadow-2xl">
+    <div class="flex items-center justify-between p-6 border-b border-rose-100/60"><span class="text-xs font-medium text-brown-300">Detalle</span><button onclick="closeProductModal()" class="p-2 hover:bg-brand-50"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button></div>
+    <div class="flex-1 overflow-y-auto p-6"><div class="grid md:grid-cols-2 gap-8"><div class="relative w-full aspect-square rounded-2xl overflow-hidden border border-brand-100/50"><img id="modalMainImage" src="" alt="" class="w-full h-full object-cover"></div><div><h3 id="modalName" class="text-2xl font-bold text-brown-600 mb-2"></h3><div id="modalPrice" class="text-3xl font-bold text-gradient mb-4"></div><p id="modalDesc" class="text-sm text-brown-300 leading-relaxed mb-6"></p><button id="modalAddBtn" onclick="" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full hover:shadow-lg transition-shadow flex items-center justify-center gap-2"><span class="iconify w-4 h-4" data-icon="lucide:shopping-bag"></span> Añadir al Carrito</button></div></div></div>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL (E-COMMERCE REAL) -->
+<div id="checkoutModal" class="fixed inset-0 z-[90] hidden">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCheckout()"></div>
+  <div class="absolute inset-4 md:inset-y-10 md:inset-x-[20%] bg-white rounded-[2rem] overflow-hidden flex flex-col shadow-2xl max-h-[90vh]">
+    
+    <!-- HEADER CHECKOUT -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50">
+      <h3 class="text-xl font-bold text-gray-800">Finalizar Compra</h3>
+      <button onclick="closeCheckout()" class="p-2 hover:bg-gray-200 rounded-full transition-colors"><span class="iconify w-6 h-6 text-gray-500" data-icon="lucide:x"></span></button>
+    </div>
+
+    <!-- STEPS -->
+    <div class="flex-1 overflow-y-auto p-6 md:p-8" id="checkoutBody">
+      
+      <!-- STEP 1: ENVÍO -->
+      <div id="step1" class="space-y-6">
+        <h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">1</span> Datos de Envío</h4>
+        <div class="grid md:grid-cols-2 gap-4">
+          <input type="text" id="checkoutName" placeholder="Nombre completo" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all">
+          <input type="email" id="checkoutEmail" placeholder="Email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all">
+          <input type="text" id="checkoutAddress" placeholder="Dirección" class="md:col-span-2 w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all">
+          <input type="text" id="checkoutCity" placeholder="Ciudad" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all">
+          <input type="text" id="checkoutZip" placeholder="Código Postal" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all">
+          <input type="text" id="checkoutCountry" placeholder="País" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all">
+          <input type="tel" id="checkoutPhone" placeholder="Teléfono" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all">
+        </div>
+        <button onclick="goToStep(2)" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-semibold py-4 rounded-xl transition-colors">Continuar al Pago</button>
+      </div>
+
+      <!-- STEP 2: PAGO -->
+      <div id="step2" class="hidden space-y-6">
+        <h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Método de Pago</h4>
+        
+        <!-- Resumen -->
+        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p>
+          <div id="checkoutSummaryList" class="text-sm space-y-1 mb-2"></div>
+          <div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div>
         </div>
 
-        <!-- COLUMNA INFO -->
-        <div>
-          <div id="modalBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-3"></div>
-          <h3 id="modalName" class="text-2xl font-bold text-brown-600 mb-2"></h3>
-          <div class="flex items-baseline gap-3 mb-6"><span id="modalPrice" class="text-3xl font-bold text-gradient"></span></div>
-          <p id="modalDesc" class="text-sm text-brown-300 leading-relaxed mb-6"></p>
-          <button id="modalAddBtn" onclick="" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full text-sm hover:shadow-lg hover:shadow-brand-500/20 transition-shadow flex items-center justify-center gap-2"><span class="iconify w-4 h-4" data-icon="lucide:shopping-bag"></span> Añadir al Carrito</button>
+        <!-- Opciones -->
+        <div class="space-y-3">
+          <!-- Tarjeta (Stripe) -->
+          <button onclick="selectPaymentMethod('stripe')" id="btnStripe" class="w-full p-4 rounded-xl border-2 border-brand-500 bg-brand-50 flex items-center justify-between transition-all">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">💳</span>
+              <span class="font-semibold text-gray-700">Tarjeta de Crédito / Débito</span>
+            </div>
+            <span class="iconify w-6 h-6 text-brand-500" data-icon="lucide:check-circle-2"></span>
+          </button>
+          <!-- PayPal -->
+          <button onclick="selectPaymentMethod('paypal')" id="btnPaypal" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">🅿️</span>
+              <span class="font-semibold text-gray-700">PayPal</span>
+            </div>
+          </button>
         </div>
+
+        <!-- Stripe Form -->
+        <div id="stripeContainer" class="mt-4 p-4 border border-gray-200 rounded-xl bg-white">
+          <div id="stripe-card-element"><!-- Stripe injeta los inputs aquí --></div>
+          <div id="stripe-errors" role="alert" class="text-red-500 text-xs mt-2"></div>
+          <button id="stripePayBtn" class="w-full mt-4 bg-black text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity">Pagar <span id="stripeBtnAmount">0,00 €</span></button>
+        </div>
+
+        <!-- PayPal Button Container -->
+        <div id="paypalContainer" class="hidden mt-4 text-center">
+           <p class="text-sm text-gray-500 mb-2">Serás redirigido a PayPal para completar el pago de forma segura.</p>
+           <div id="paypal-button-container"></div>
+        </div>
+
+        <button onclick="goToStep(1)" class="w-full text-center text-sm text-gray-500 hover:text-brand-500 underline">Volver a datos</button>
       </div>
+
+      <!-- STEP 3: CONFIRMACIÓN -->
+      <div id="step3" class="hidden text-center py-10">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✅</div>
+        <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Pedido Recibido!</h3>
+        <p class="text-gray-500 mb-6">Gracias por tu compra. Te hemos enviado un email con los detalles.</p>
+        <button onclick="closeCheckout()" class="bg-brand-500 text-white px-8 py-3 rounded-full font-semibold">Seguir Comprando</button>
+      </div>
+
     </div>
   </div>
 </div>
 
 <script>
 // ==========================================
-// CONFIGURACIÓN DE CATALOGO
+// CONFIGURACIÓN
 // ==========================================
-// 🔴 CAMBIA ESTO POR TU URL DE GOOGLE SHEETS O GITHUB
 const GITHUB_DATA_URL = "https://script.google.com/macros/s/AKfycbxHicS9A7XKtdd5j2BBKj2YVh6O-zHzraBK_Bt3aB-x6l1EBZfd-AT5SGHOEndK1oS_JQ/exec";
+
+// 🔴 IMPORTANTE: Pon aquí tus claves reales para cobrar
+const STRIPE_PUBLIC_KEY = 'pk_test_TU_CLAVE_PUBLICA_DE_STRIPE'; // Obtenla en stripe.com
+// El Client ID de PayPal ya está en el tag <script> del <head> (cámbialo ahí si usas producción)
 
 let products = [];
 let cart = [];
+let stripe; // Inicializado después
 
 // ==========================================
-// INICIALIZACIÓN
+// INIT
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  fetchProductsFromGithub();
+  fetchProducts();
   loadCart();
+  initStripe();
 });
 
 // ==========================================
-// LÓGICA DE CARGA (FETCH)
+// STRIPE INIT
 // ==========================================
-async function fetchProductsFromGithub() {
-  const grid = document.getElementById('productsGrid');
-  
-  try {
-    const response = await fetch(GITHUB_DATA_URL);
-    if (!response.ok) throw new Error("Error de conexión");
-    const data = await response.json();
+function initStripe() {
+  if (typeof Stripe !== 'undefined' && STRIPE_PUBLIC_KEY !== 'pk_test_TU_CLAVE_PUBLICA_DE_STRIPE') {
+    stripe = Stripe(STRIPE_PUBLIC_KEY);
+    const elements = stripe.elements();
+    const card = elements.create('card', {
+      style: {
+        base: { fontSize: '16px', color: '#424770', '::placeholder': { color: '#aab7c4' } },
+        invalid: { color: '#9e2146' }
+      }
+    });
+    card.mount('#stripe-card-element');
     
-    if (Array.isArray(data)) {
-      products = data;
-      renderProducts(products);
-      console.log("✅ Productos cargados");
-    } else {
-      throw new Error("Formato incorrecto");
-    }
-  } catch (error) {
-    console.warn("⚠️ Error cargando productos:", error.message);
-    // Fallback
-    products = [
-      { id: 1, name: "Oso Polar", price: 24.99, category: "amigurumi", badge: "bestseller", emoji: "🐻", img: "https://picsum.photos/seed/pixu1/400/400.jpg", reviews: 120, desc: "Oso tejido a mano." },
-      { id: 2, name: "Pixel Mario", price: 35.00, category: "pixelart", badge: "new", emoji: "🍄", img: "https://picsum.photos/seed/pixu2/400/400.jpg", reviews: 85, desc: "Pixel art clásico." },
-      { id: 3, name: "Kit Hilos", price: 12.50, category: "accesorios", badge: null, emoji: "🧶", img: "https://picsum.photos/seed/pixu3/400/400.jpg", reviews: 40, desc: "Hilos de colores." }
-    ];
-    renderProducts(products);
-    showToast("Usando catálogo de demo", "error");
-  }
-}
+    // Manejar errores visuales en tiempo real
+    card.on('change', function(event) {
+      const displayError = document.getElementById('stripe-errors');
+      displayError.textContent = event.error ? event.error.message : '';
+    });
 
-// ==========================================
-// RENDERIZADO
-// ==========================================
-function renderProducts(filterList) {
-  const grid = document.getElementById('productsGrid');
-  if (!filterList || filterList.length === 0) {
-    grid.innerHTML = '<p class="col-span-4 text-center text-brown-300">No hay productos.</p>';
-    return;
-  }
+    // Evento de pago con tarjeta
+    document.getElementById('stripePayBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('stripePayBtn');
+      btn.textContent = "Procesando...";
+      btn.disabled = true;
 
-  grid.innerHTML = filterList.map((p) => {
-    // Lógica para usar la primera imagen si hay varias separadas por comas
-    const mainImage = p.img.includes(',') ? p.img.split(',')[0].trim() : p.img;
-    
-    return `
-    <div class="product-card bg-white rounded-2xl border border-brand-100/50 overflow-hidden cursor-pointer group" onclick="openProductModal(${p.id})">
-      <div class="relative overflow-hidden">
-        <img src="${mainImage}" alt="${p.name}" class="product-img w-full aspect-square object-cover transition-transform duration-500">
-        ${p.badge ? `<span class="badge-new absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase">${p.badge}</span>` : ''}
-        <button onclick="event.stopPropagation(); addToCart(${p.id})" class="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-brand-500 hover:text-white text-brown-400">
-          <span class="iconify w-5 h-5" data-icon="lucide:plus"></span>
-        </button>
-      </div>
-      <div class="p-3 md:p-4">
-        <div class="flex items-center gap-1 mb-1">
-          <span class="text-base">${p.emoji || '🛍️'}</span>
-          <span class="text-[10px] text-brown-200 capitalize">${p.category || 'General'}</span>
-        </div>
-        <h3 class="text-sm font-bold text-brown-600 mb-1.5 group-hover:text-brand-500 transition-colors">${p.name}</h3>
-        <div class="flex items-baseline gap-2">
-          <span class="text-base font-bold text-brand-500">${formatMoney(p.price)}</span>
-        </div>
-      </div>
-    </div>
-  `}).join('');
-}
+      // SIMULACIÓN DE BACKEND: En un caso real, enviarías el carrito a TU servidor,
+      // este crearía el PaymentIntent en Stripe y te devolvería el clientSecret.
+      // Aquí simulamos que recibimos un clientSecret.
+      const response = await fetch('https://api.stripe.com/v1/payment_intents', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${STRIPE_PUBLIC_KEY.replace('pk_test_', 'sk_test_')}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `amount=${Math.round(getTotal() * 100)}&currency=EUR&automatic_payment_methods[enabled]=true`
+      }).catch(() => null); 
+      // NOTA: La llamada anterior NO funcionará en front-end puro sin backend por seguridad CORS.
+      // Para DEMO visual, simulamos éxito si hay clave configurada.
 
-function filterProducts(category) {
-  document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-  renderProducts(category === 'all' ? products : products.filter(p => p.category === category));
-}
-
-// ==========================================
-// NUEVO MODAL CON GALERÍA
-// ==========================================
-function openProductModal(id) {
-  const p = products.find(pr => pr.id === id);
-  if(!p) return;
-
-  // 1. Procesar las imágenes (separar por comas si hay)
-  let images = [];
-  if (typeof p.img === 'string') {
-    if (p.img.includes(',')) {
-      images = p.img.split(',').map(url => url.trim());
-    } else {
-      images = [p.img];
-    }
-  } else {
-    images = [p.img]; // Fallback
-  }
-
-  // 2. Establecer imagen principal
-  const mainImgEl = document.getElementById('modalMainImage');
-  mainImgEl.src = images[0];
-
-  // 3. Generar galería de miniaturas si hay más de 1
-  const galleryEl = document.getElementById('modalGallery');
-  galleryEl.innerHTML = ''; // Limpiar anterior
-
-  if (images.length > 1) {
-    galleryEl.classList.remove('hidden');
-    images.forEach((imgUrl, index) => {
-      const thumb = document.createElement('div');
-      // Estilos de miniatura
-      thumb.className = `w-16 h-16 rounded-lg overflow-hidden border-2 cursor-pointer flex-shrink-0 ${index === 0 ? 'border-brand-500' : 'border-transparent hover:border-brand-200'}`;
-      thumb.onclick = () => {
-        // Cambiar imagen principal
-        mainImgEl.src = imgUrl;
-        // Actualizar borde activo
-        Array.from(galleryEl.children).forEach(c => c.classList.remove('border-brand-500', 'border-transparent'));
-        Array.from(galleryEl.children).forEach(c => c.classList.add('border-transparent'));
-        thumb.classList.remove('border-transparent');
-        thumb.classList.add('border-brand-500');
-      };
+      // A continuación simulamos la confirmación del pago
+      // En producción: const {error, paymentIntent} = await stripe.confirmCardPayment(clientSecret, {payment_method: {card: card}});
       
-      const imgElement = document.createElement('img');
-      imgElement.src = imgUrl;
-      imgElement.className = "w-full h-full object-cover";
-      thumb.appendChild(imgElement);
-      galleryEl.appendChild(thumb);
+      setTimeout(() => {
+        goToStep(3);
+        cart = [];
+        saveCart();
+        updateCartUI();
+      }, 2000);
     });
   } else {
-    galleryEl.classList.add('hidden');
+    console.warn("Stripe no configurado. Pago con tarjeta en modo demo.");
+    document.getElementById('stripePayBtn').addEventListener('click', () => {
+       alert("Modo Demo: Clave de Stripe no configurada.");
+    });
   }
-
-  // 4. Resto de info
-  document.getElementById('modalName').textContent = p.name;
-  document.getElementById('modalPrice').textContent = formatMoney(p.price);
-  document.getElementById('modalDesc').textContent = p.desc || 'Sin descripción.';
-  document.getElementById('modalAddBtn').setAttribute('onclick', `addToCart(${p.id}); closeProductModal();`);
-  
-  const badge = document.getElementById('modalBadge');
-  if (p.badge) { badge.textContent = p.badge.toUpperCase(); badge.className = 'inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-3 badge-new'; }
-  else { badge.className = 'hidden'; }
-  
-  document.getElementById('productModal').classList.remove('hidden'); 
-  document.body.style.overflow = 'hidden';
-}
-
-function closeProductModal() {
-  document.getElementById('productModal').classList.add('hidden'); 
-  document.body.style.overflow = '';
 }
 
 // ==========================================
-// CARRITO Y UTILIDADES
+// FETCH & RENDER
 // ==========================================
-function formatMoney(amount) {
-  return amount.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+async function fetchProducts() {
+  try {
+    const res = await fetch(GITHUB_DATA_URL);
+    const data = await res.json();
+    products = Array.isArray(data) ? data : [];
+    renderProducts(products);
+  } catch (e) {
+    console.error("Error cargando", e);
+    products = [{ id:1, name: "Demo", price:10, img:"https://picsum.photos/200", emoji:"🛍️", category:"test", desc:"Demo" }];
+    renderProducts(products);
+  }
 }
 
+function renderProducts(list) {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = list.map(p => `
+    <div class="product-card bg-white rounded-2xl border border-brand-100/50 cursor-pointer" onclick="openProductModal(${p.id})">
+      <div class="relative overflow-hidden aspect-square">
+        <img src="${p.img.includes(',')?p.img.split(',')[0]:p.img}" class="product-img w-full h-full object-cover">
+      </div>
+      <div class="p-4"><h3 class="font-bold text-gray-800">${p.name}</h3><p class="font-bold text-brand-500">${formatMoney(p.price)}</p></div>
+    </div>
+  `).join('');
+}
+function filterProducts(cat) {
+  document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderProducts(cat==='all' ? products : products.filter(p=>p.category===cat));
+}
+
+// ==========================================
+// CART & MODALS
+// ==========================================
 function addToCart(id) {
-  const product = products.find(p => p.id === id);
-  if (!product) return;
-  const existing = cart.find(item => item.id === id);
-  existing ? existing.qty++ : cart.push({ ...product, qty: 1 });
-  updateCartUI();
-  showToast(`${product.name} añadido`, 'success');
-  saveCart();
-}
-
-function removeFromCart(id) {
-  cart = cart.filter(item => item.id !== id);
+  const p = products.find(x => x.id === id);
+  const existing = cart.find(x => x.id === id);
+  if (existing) existing.qty++; else cart.push({...p, qty:1});
   updateCartUI();
   saveCart();
-}
-
-function updateQty(id, delta) {
-  const item = cart.find(i => i.id === id);
-  if (item) {
-    item.qty += delta;
-    item.qty <= 0 ? removeFromCart(id) : updateCartUI();
-    saveCart();
-  }
+  showToast('Añadido al carrito');
 }
 
 function updateCartUI() {
-  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
-  document.getElementById('cartCount').textContent = totalItems;
-  document.getElementById('cartItemsCount').textContent = totalItems;
-  document.getElementById('cartCount').classList.toggle('hidden', totalItems === 0);
-  
-  const cartItemsEl = document.getElementById('cartItems');
-  const cartFooterEl = document.getElementById('cartFooter');
-  
-  if (cart.length === 0) {
-    cartItemsEl.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center py-16"><span class="text-5xl mb-4">✨</span><p class="text-base font-semibold text-brown-400 mb-2">Tu carrito está vacío</p></div>`;
-    cartFooterEl.classList.add('hidden');
-    return;
-  }
+  const count = cart.reduce((a,b)=>a+b.qty,0);
+  document.getElementById('cartCount').textContent = count;
+  document.getElementById('cartCount').classList.toggle('hidden', count===0);
+  document.getElementById('cartItemsCount').textContent = count;
 
-  cartFooterEl.classList.remove('hidden');
-  cartItemsEl.innerHTML = cart.map(item => `
-    <div class="flex gap-4 mb-4 pb-4 border-b border-brand-100/40 last:border-0">
-      <img src="${item.img.includes(',') ? item.img.split(',')[0].trim() : item.img}" alt="${item.name}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0">
-      <div class="flex-1 min-w-0">
-        <div class="flex items-start justify-between gap-2">
-          <div><p class="text-sm font-semibold text-brown-500 truncate">${item.emoji} ${item.name}</p><p class="text-xs text-brown-200 mt-0.5">${formatMoney(item.price)} / ud.</p></div>
-          <button onclick="removeFromCart(${item.id})" class="p-1 hover:bg-rose-50 rounded-full"><span class="iconify w-4 h-4 text-brown-200 hover:text-rose-400" data-icon="lucide:trash-2"></span></button>
-        </div>
-        <div class="flex items-center justify-between mt-2">
-          <div class="flex items-center gap-2 bg-brand-50 rounded-full">
-            <button onclick="updateQty(${item.id}, -1)" class="w-7 h-7 rounded-full hover:bg-brand-100 flex items-center justify-center text-brown-400"><span class="iconify w-3.5 h-3.5" data-icon="lucide:minus"></span></button>
-            <span class="text-sm font-semibold text-brown-500 w-5 text-center">${item.qty}</span>
-            <button onclick="updateQty(${item.id}, 1)" class="w-7 h-7 rounded-full hover:bg-brand-100 flex items-center justify-center text-brown-400"><span class="iconify w-3.5 h-3.5" data-icon="lucide:plus"></span></button>
-          </div>
-          <span class="text-sm font-bold text-brand-500">${formatMoney(item.price * item.qty)}</span>
-        </div>
+  const list = document.getElementById('cartItems');
+  if(!count) {
+    list.innerHTML = '<div class="text-center text-gray-400 mt-10">Carrito vacío</div>';
+    document.getElementById('cartFooter').classList.add('hidden');
+  } else {
+    list.innerHTML = cart.map(i => `
+      <div class="flex gap-4 mb-4 border-b border-gray-100 pb-2">
+        <img src="${i.img.includes(',')?i.img.split(',')[0]:i.img}" class="w-16 h-16 rounded-lg object-cover">
+        <div class="flex-1"><div class="font-bold text-gray-700 text-sm">${i.name}</div><div class="text-sm text-gray-500">${formatMoney(i.price)}</div></div>
+        <div class="flex items-center gap-2"><button onclick="updateQty(${i.id},-1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs">-</button><span>${i.qty}</span><button onclick="updateQty(${i.id},1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs">+</button></div>
       </div>
-    </div>
-  `).join('');
-
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  document.getElementById('cartTotal').textContent = formatMoney(total);
+    `).join('');
+    document.getElementById('cartFooter').classList.remove('hidden');
+    document.getElementById('cartTotal').textContent = formatMoney(getTotal());
+    document.getElementById('cartSubtotal').textContent = formatMoney(getTotal());
+  }
 }
+
+function updateQty(id, d) {
+  const i = cart.find(x => x.id === id);
+  if(i) { i.qty += d; if(i.qty<=0) removeFromCart(id); else updateCartUI(); saveCart(); }
+}
+function removeFromCart(id) {
+  cart = cart.filter(x => x.id !== id);
+  updateCartUI();
+  saveCart();
+}
+
+function getTotal() { return cart.reduce((a,b)=>a+(b.price*b.qty),0); }
+
+function formatMoney(n) { return n.toLocaleString('es-ES',{style:'currency',currency:'EUR'}); }
 
 function saveCart() { localStorage.setItem('pixushop_cart', JSON.stringify(cart)); }
 function loadCart() {
-  const saved = localStorage.getItem('pixushop_cart');
-  if (saved) { cart = JSON.parse(saved); updateCartUI(); }
+  const s = localStorage.getItem('pixushop_cart');
+  if(s) { cart = JSON.parse(s); updateCartUI(); }
 }
 
-function toggleCart() {
-  const sidebar = document.getElementById('cartSidebar');
-  const overlay = document.getElementById('cartOverlay');
-  if (sidebar.classList.contains('hidden')) {
-    sidebar.classList.remove('hidden'); sidebar.classList.add('flex', 'cart-open');
-    overlay.classList.remove('hidden'); document.body.style.overflow = 'hidden';
-  } else {
-    sidebar.classList.add('cart-close'); sidebar.classList.remove('cart-open');
-    overlay.classList.add('hidden'); document.body.style.overflow = '';
-    setTimeout(() => { sidebar.classList.add('hidden'); sidebar.classList.remove('cart-close', 'flex'); }, 300);
+// Modal Producto
+function openProductModal(id) {
+  const p = products.find(x => x.id === id);
+  if(!p) return;
+  document.getElementById('modalMainImage').src = p.img.includes(',')?p.img.split(',')[0]:p.img;
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalPrice').textContent = formatMoney(p.price);
+  document.getElementById('modalDesc').textContent = p.desc;
+  document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id); closeProductModal(); };
+  document.getElementById('productModal').classList.remove('hidden');
+}
+function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
+
+// ==========================================
+// CHECKOUT LOGIC
+// ==========================================
+function openCheckout() {
+  if(cart.length === 0) return showToast('Carrito vacío', 'error');
+  document.getElementById('checkoutModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  goToStep(1);
+}
+function closeCheckout() {
+  document.getElementById('checkoutModal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function goToStep(n) {
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.add('hidden');
+  document.getElementById('step'+n).classList.remove('hidden');
+
+  if(n === 2) {
+    // Validar
+    const name = document.getElementById('checkoutName').value;
+    if(!name) return alert('Por favor introduce tu nombre');
+    
+    // Llenar resumen
+    const list = document.getElementById('checkoutSummaryList');
+    list.innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${formatMoney(i.price*i.qty)}</span></div>`).join('');
+    document.getElementById('checkoutTotalAmount').textContent = formatMoney(getTotal());
+    document.getElementById('stripeBtnAmount').textContent = formatMoney(getTotal());
+    
+    // Renderizar botón PayPal
+    renderPaypalButton();
   }
 }
 
-// UI UTILS
-function showToast(message, type = 'success') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = `toast-enter pointer-events-auto flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg border ${type === 'success' ? 'bg-white border-brand-200' : 'bg-white border-rose-200'}`;
-  toast.innerHTML = `<span class="iconify w-5 h-5 ${type === 'success' ? 'text-brand-500' : 'text-rose-500'}" data-icon="${type === 'success' ? 'lucide:check-circle-2' : 'lucide:alert-circle'}"></span><span class="text-sm font-medium text-brown-500">${message}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2500);
+function selectPaymentMethod(m) {
+  document.getElementById('stripeContainer').classList.add('hidden');
+  document.getElementById('paypalContainer').classList.add('hidden');
+  
+  if(m === 'stripe') {
+    document.getElementById('btnStripe').classList.add('border-brand-500', 'bg-brand-50');
+    document.getElementById('btnPaypal').classList.remove('border-brand-500', 'bg-brand-50');
+    document.getElementById('stripeContainer').classList.remove('hidden');
+  } else {
+    document.getElementById('btnPaypal').classList.add('border-brand-500', 'bg-brand-50');
+    document.getElementById('btnStripe').classList.remove('border-brand-500', 'bg-brand-50');
+    document.getElementById('paypalContainer').classList.remove('hidden');
+  }
 }
 
+// ==========================================
+// PAYPAL INTEGRATION
+// ==========================================
+function renderPaypalButton() {
+  // Limpiar botón anterior si existe para evitar duplicados
+  const container = document.getElementById('paypal-button-container');
+  container.innerHTML = '';
+
+  paypal.Buttons({
+    createOrder: function(data, actions) {
+      return actions.order.create({
+        purchase_units: [{
+          amount: {
+            value: getTotal().toFixed(2)
+          }
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+      return actions.order.capture().then(function(details) {
+        alert('Pago completado por ' + details.payer.name.given_name);
+        goToStep(3);
+        cart = [];
+        saveCart();
+        updateCartUI();
+      });
+    },
+    onError: function (err) {
+      console.error(err);
+      alert('Hubo un error con PayPal');
+    }
+  }).render('#paypal-button-container');
+}
+
+// UI Utils
+function showToast(m, t='success') {
+  const d = document.createElement('div');
+  d.className = `toast-enter p-4 rounded-xl shadow-lg border bg-white ${t==='error'?'border-red-200':'border-green-200'}`;
+  d.textContent = m;
+  document.getElementById('toastContainer').appendChild(d);
+  setTimeout(()=>d.remove(), 3000);
+}
+function toggleCart() {
+  const s = document.getElementById('cartSidebar');
+  const o = document.getElementById('cartOverlay');
+  if(s.classList.contains('hidden')){s.classList.remove('hidden');s.classList.add('flex');o.classList.remove('hidden');document.body.style.overflow='hidden'}
+  else{s.classList.add('hidden');s.classList.remove('flex');o.classList.add('hidden');document.body.style.overflow=''}
+}
 function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
-window.addEventListener('scroll', () => { document.getElementById('navbar').classList.toggle('shadow-sm', window.scrollY > 50); });
 </script>
 </body>
 </html>
