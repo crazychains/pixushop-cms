@@ -95,6 +95,10 @@ tailwind.config = {
     animation: 1.5s shine linear infinite;
   }
   @keyframes shine { to { background-position-x: -200%; } }
+
+  /* Estilos para la galería de fotos */
+  .thumbnail-active { border-color: #0EA5E9; ring-width: 2px; }
+  .cursor-pointer-img { cursor: pointer; }
 </style>
 </head>
 <body class="text-brown-600 antialiased">
@@ -261,14 +265,26 @@ tailwind.config = {
   </div>
 </div>
 
-<!-- MODAL PRODUCTO -->
+<!-- MODAL PRODUCTO CON GALERÍA -->
 <div id="productModal" class="fixed inset-0 z-[80] hidden">
   <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeProductModal()"></div>
   <div class="absolute inset-4 md:inset-10 lg:inset-y-10 lg:inset-x-[20%] bg-cream rounded-[2rem] overflow-hidden flex flex-col shadow-2xl">
     <div class="flex items-center justify-between p-6 border-b border-rose-100/60"><span class="text-xs font-medium text-brown-300">Detalle</span><button onclick="closeProductModal()" class="p-2 hover:bg-brand-50 rounded-full transition-colors"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button></div>
     <div class="flex-1 overflow-y-auto p-6 md:p-8">
       <div class="grid md:grid-cols-2 gap-8">
-        <div><img id="modalImage" src="" alt="" class="w-full aspect-square rounded-2xl object-cover border border-brand-100/50"></div>
+        <!-- COLUMNA IMÁGENES -->
+        <div class="flex flex-col gap-4">
+          <!-- Imagen Principal -->
+          <div class="relative w-full aspect-square rounded-2xl overflow-hidden border border-brand-100/50 bg-white">
+             <img id="modalMainImage" src="" alt="" class="w-full h-full object-cover transition-opacity duration-300">
+          </div>
+          <!-- Galería de Miniaturas (Solo si hay más de 1) -->
+          <div id="modalGallery" class="flex gap-2 overflow-x-auto pb-2 hidden">
+            <!-- Las miniaturas se inyectan con JS -->
+          </div>
+        </div>
+
+        <!-- COLUMNA INFO -->
         <div>
           <div id="modalBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-3"></div>
           <h3 id="modalName" class="text-2xl font-bold text-brown-600 mb-2"></h3>
@@ -285,9 +301,7 @@ tailwind.config = {
 // ==========================================
 // CONFIGURACIÓN DE CATALOGO
 // ==========================================
-// LA SOLUCIÓN ACTUAL INCLUYE UN CATALOGO EN GOOGLE SHET, CON UN SCRIPT QUE LO CONVIERTE A JSON
-// 🔴 PASO OBLIGATORIO: Cambia esta URL por la de TU archivo products.json en GitHub
-// Ejemplo: "https://raw.githubusercontent.com/TU_USUARIO/pixushop-data/main/products.json"
+// 🔴 CAMBIA ESTO POR TU URL DE GOOGLE SHEETS O GITHUB
 const GITHUB_DATA_URL = "https://script.google.com/macros/s/AKfycbxHicS9A7XKtdd5j2BBKj2YVh6O-zHzraBK_Bt3aB-x6l1EBZfd-AT5SGHOEndK1oS_JQ/exec";
 
 let products = [];
@@ -302,40 +316,33 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// LÓGICA DE GITHUB (FETCH)
+// LÓGICA DE CARGA (FETCH)
 // ==========================================
 async function fetchProductsFromGithub() {
   const grid = document.getElementById('productsGrid');
   
   try {
-    // 1. Intentar cargar desde GitHub
     const response = await fetch(GITHUB_DATA_URL);
-    
-    if (!response.ok) throw new Error("Error en GitHub");
-    
+    if (!response.ok) throw new Error("Error de conexión");
     const data = await response.json();
     
-    // Validar que sea un array
     if (Array.isArray(data)) {
       products = data;
       renderProducts(products);
-      console.log("✅ Productos cargados desde GitHub");
+      console.log("✅ Productos cargados");
     } else {
       throw new Error("Formato incorrecto");
     }
-
   } catch (error) {
-    console.warn("⚠️ No se pudo cargar desde GitHub:", error.message);
-    
-    // 2. FALLBACK: Si falla, usar datos de ejemplo para que la web no se vea rota
-    console.log("📦 Usando catálogo de respaldo local...");
+    console.warn("⚠️ Error cargando productos:", error.message);
+    // Fallback
     products = [
       { id: 1, name: "Oso Polar", price: 24.99, category: "amigurumi", badge: "bestseller", emoji: "🐻", img: "https://picsum.photos/seed/pixu1/400/400.jpg", reviews: 120, desc: "Oso tejido a mano." },
       { id: 2, name: "Pixel Mario", price: 35.00, category: "pixelart", badge: "new", emoji: "🍄", img: "https://picsum.photos/seed/pixu2/400/400.jpg", reviews: 85, desc: "Pixel art clásico." },
       { id: 3, name: "Kit Hilos", price: 12.50, category: "accesorios", badge: null, emoji: "🧶", img: "https://picsum.photos/seed/pixu3/400/400.jpg", reviews: 40, desc: "Hilos de colores." }
     ];
     renderProducts(products);
-    showToast("Modo Demo: Verifica tu URL de GitHub", "error");
+    showToast("Usando catálogo de demo", "error");
   }
 }
 
@@ -349,10 +356,14 @@ function renderProducts(filterList) {
     return;
   }
 
-  grid.innerHTML = filterList.map((p) => `
+  grid.innerHTML = filterList.map((p) => {
+    // Lógica para usar la primera imagen si hay varias separadas por comas
+    const mainImage = p.img.includes(',') ? p.img.split(',')[0].trim() : p.img;
+    
+    return `
     <div class="product-card bg-white rounded-2xl border border-brand-100/50 overflow-hidden cursor-pointer group" onclick="openProductModal(${p.id})">
       <div class="relative overflow-hidden">
-        <img src="${p.img}" alt="${p.name}" class="product-img w-full aspect-square object-cover transition-transform duration-500">
+        <img src="${mainImage}" alt="${p.name}" class="product-img w-full aspect-square object-cover transition-transform duration-500">
         ${p.badge ? `<span class="badge-new absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase">${p.badge}</span>` : ''}
         <button onclick="event.stopPropagation(); addToCart(${p.id})" class="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-brand-500 hover:text-white text-brown-400">
           <span class="iconify w-5 h-5" data-icon="lucide:plus"></span>
@@ -369,13 +380,85 @@ function renderProducts(filterList) {
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function filterProducts(category) {
   document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
   event.target.classList.add('active');
   renderProducts(category === 'all' ? products : products.filter(p => p.category === category));
+}
+
+// ==========================================
+// NUEVO MODAL CON GALERÍA
+// ==========================================
+function openProductModal(id) {
+  const p = products.find(pr => pr.id === id);
+  if(!p) return;
+
+  // 1. Procesar las imágenes (separar por comas si hay)
+  let images = [];
+  if (typeof p.img === 'string') {
+    if (p.img.includes(',')) {
+      images = p.img.split(',').map(url => url.trim());
+    } else {
+      images = [p.img];
+    }
+  } else {
+    images = [p.img]; // Fallback
+  }
+
+  // 2. Establecer imagen principal
+  const mainImgEl = document.getElementById('modalMainImage');
+  mainImgEl.src = images[0];
+
+  // 3. Generar galería de miniaturas si hay más de 1
+  const galleryEl = document.getElementById('modalGallery');
+  galleryEl.innerHTML = ''; // Limpiar anterior
+
+  if (images.length > 1) {
+    galleryEl.classList.remove('hidden');
+    images.forEach((imgUrl, index) => {
+      const thumb = document.createElement('div');
+      // Estilos de miniatura
+      thumb.className = `w-16 h-16 rounded-lg overflow-hidden border-2 cursor-pointer flex-shrink-0 ${index === 0 ? 'border-brand-500' : 'border-transparent hover:border-brand-200'}`;
+      thumb.onclick = () => {
+        // Cambiar imagen principal
+        mainImgEl.src = imgUrl;
+        // Actualizar borde activo
+        Array.from(galleryEl.children).forEach(c => c.classList.remove('border-brand-500', 'border-transparent'));
+        Array.from(galleryEl.children).forEach(c => c.classList.add('border-transparent'));
+        thumb.classList.remove('border-transparent');
+        thumb.classList.add('border-brand-500');
+      };
+      
+      const imgElement = document.createElement('img');
+      imgElement.src = imgUrl;
+      imgElement.className = "w-full h-full object-cover";
+      thumb.appendChild(imgElement);
+      galleryEl.appendChild(thumb);
+    });
+  } else {
+    galleryEl.classList.add('hidden');
+  }
+
+  // 4. Resto de info
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalPrice').textContent = formatMoney(p.price);
+  document.getElementById('modalDesc').textContent = p.desc || 'Sin descripción.';
+  document.getElementById('modalAddBtn').setAttribute('onclick', `addToCart(${p.id}); closeProductModal();`);
+  
+  const badge = document.getElementById('modalBadge');
+  if (p.badge) { badge.textContent = p.badge.toUpperCase(); badge.className = 'inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-3 badge-new'; }
+  else { badge.className = 'hidden'; }
+  
+  document.getElementById('productModal').classList.remove('hidden'); 
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProductModal() {
+  document.getElementById('productModal').classList.add('hidden'); 
+  document.body.style.overflow = '';
 }
 
 // ==========================================
@@ -428,7 +511,7 @@ function updateCartUI() {
   cartFooterEl.classList.remove('hidden');
   cartItemsEl.innerHTML = cart.map(item => `
     <div class="flex gap-4 mb-4 pb-4 border-b border-brand-100/40 last:border-0">
-      <img src="${item.img}" alt="${item.name}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0">
+      <img src="${item.img.includes(',') ? item.img.split(',')[0].trim() : item.img}" alt="${item.name}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0">
       <div class="flex-1 min-w-0">
         <div class="flex items-start justify-between gap-2">
           <div><p class="text-sm font-semibold text-brown-500 truncate">${item.emoji} ${item.name}</p><p class="text-xs text-brown-200 mt-0.5">${formatMoney(item.price)} / ud.</p></div>
@@ -467,25 +550,6 @@ function toggleCart() {
     overlay.classList.add('hidden'); document.body.style.overflow = '';
     setTimeout(() => { sidebar.classList.add('hidden'); sidebar.classList.remove('cart-close', 'flex'); }, 300);
   }
-}
-
-// MODALS
-function openProductModal(id) {
-  const p = products.find(pr => pr.id === id);
-  if(!p) return;
-  document.getElementById('modalImage').src = p.img;
-  document.getElementById('modalName').textContent = p.name;
-  document.getElementById('modalPrice').textContent = formatMoney(p.price);
-  document.getElementById('modalDesc').textContent = p.desc || 'Sin descripción.';
-  document.getElementById('modalAddBtn').setAttribute('onclick', `addToCart(${p.id}); closeProductModal();`);
-  const badge = document.getElementById('modalBadge');
-  if (p.badge) { badge.textContent = p.badge.toUpperCase(); badge.className = 'inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-3 badge-new'; }
-  else { badge.className = 'hidden'; }
-  document.getElementById('productModal').classList.remove('hidden'); document.body.style.overflow = 'hidden';
-}
-
-function closeProductModal() {
-  document.getElementById('productModal').classList.add('hidden'); document.body.style.overflow = '';
 }
 
 // UI UTILS
