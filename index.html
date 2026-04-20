@@ -382,10 +382,32 @@ function renderProducts(list) {
   `}).join('');
 }
 
-function filterProducts(cat) {
+function filterProducts(category) {
   document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
   event.target.classList.add('active');
-  renderProducts(cat === 'all' ? products : products.filter(p => p.category === cat));
+
+  if (category === 'all') {
+    renderProducts(products); // Ya vienen ordenados por fetchProducts
+  } else {
+    // Filtramos por categoría
+    const filtered = products.filter(p => {
+      if (!p.category) return false;
+      return p.category.includes(category);
+    });
+
+    // DENTRO de la categoría, volvemos a separar TOP del RESTO para mantener el orden visual
+    let topInCat = filtered.filter(p => {
+        const r = parseInt(p.reviews);
+        return !isNaN(r) && r >= 1 && r <= 10;
+    }).sort((a,b) => parseInt(a.reviews) - parseInt(b.reviews));
+
+    let restInCat = filtered.filter(p => {
+        const r = parseInt(p.reviews);
+        return isNaN(r) || r > 10;
+    });
+
+    renderProducts([...topInCat, ...restInCat]);
+  }
 }
 
 // ==========================================
