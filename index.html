@@ -6,9 +6,8 @@
 <title>Pixushop — Tu tienda creativa</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-<!-- SDK de Stripe (Cargaremos dinámicamente) -->
+<!-- SDK de Stripe -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<!-- SDK de PayPal (Cargaremos dinámicamente) -->
 <script>
 tailwind.config = {
   theme: {
@@ -30,33 +29,37 @@ tailwind.config = {
   * { font-family: 'Inter', sans-serif; }
   html { scroll-behavior: smooth; }
   body { background: #FFFBF5; }
-  
+
   @keyframes fadeInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-  .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity:0; }
-  
-  .cart-open { animation: slideInRight 0.3s ease-out forwards; }
-  .cart-close { animation: slideOutRight 0.3s ease-in forwards; }
+  @keyframes float { 0%,100% { transform:translateY(0px); } 50% { transform:translateY(-12px); } }
+  @keyframes shimmer { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
   @keyframes slideInRight { from{transform:translateX(100%)} to{transform:translateX(0)} }
   @keyframes slideOutRight { from{transform:translateX(0)} to{transform:translateX(100%)} }
 
+  .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity:0; }
+  .float-anim { animation: float 4s ease-in-out infinite; }
+  .cart-open { animation: slideInRight 0.3s ease-out forwards; }
+  .cart-close { animation: slideOutRight 0.3s ease-in forwards; }
+
+  .product-card:hover .product-img { transform: scale(1.08); }
   .product-card:hover { box-shadow: 0 20px 60px rgba(14, 165, 233, 0.15); transform: translateY(-6px); transition: all 0.4s; }
-  .product-card:hover .product-img { transform: scale(1.08); transition: transform 0.5s; }
 
   .category-btn.active { background: #0EA5E9; color: white; border-color: #0EA5E9; }
-  
+
   .shimmer-btn {
-    background: linear-gradient(90deg, #0EA5E9 0%, #38BDF8 50%, #0EA5E9 100%);
+    background: linear-gradient(90deg, #0EA5E9 0%, #38BDF8 25%, #0EA5E9 50%, #38BDF8 75%, #0EA5E9 100%);
     background-size: 200% 100%;
     animation: shimmer 3s linear infinite;
   }
-  @keyframes shimmer { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
 
   .toast-enter { animation: fadeInUp 0.4s ease-out forwards; }
-  
+
   .hero-gradient { background: linear-gradient(135deg, #F0F9FF 0%, #FFFBEB 40%, #FFF1F2 70%, #F0F7F0 100%); }
   .text-gradient { background: linear-gradient(135deg, #0EA5E9, #0284C7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   
   .badge-new { background: linear-gradient(135deg, #0EA5E9, #38BDF8); color: white; }
+  .badge-sale { background: #4A8F4A; color: white; }
+  
   .loading-skeleton { background: #e0e0e0; background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%); background-size: 200% 100%; animation: 1.5s shine linear infinite; }
   @keyframes shine { to { background-position-x: -200%; } }
 </style>
@@ -70,202 +73,249 @@ tailwind.config = {
 <nav class="fixed top-0 left-0 right-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-rose-100/60 transition-all" id="navbar">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16 md:h-20">
-      <a href="#" class="flex items-center gap-2"><span class="text-2xl">✨</span><span class="text-xl md:text-2xl font-bold text-gradient">Pixushop</span></a>
-      <div class="hidden md:flex items-center gap-8"><a href="#catalogo" class="text-sm font-medium text-brown-400 hover:text-brand-500">Catálogo</a></div>
-      <div class="flex items-center gap-3">
-        <button onclick="toggleCart()" class="relative p-2 rounded-full hover:bg-brand-50 group"><span class="iconify w-6 h-6 text-brown-400 group-hover:text-brand-500" data-icon="lucide:shopping-bag"></span><span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span></button>
+      <a href="#" class="flex items-center gap-2">
+        <span class="text-2xl">✨</span>
+        <span class="text-xl md:text-2xl font-bold text-gradient">Pixushop</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#catalogo" class="text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Catálogo</a>
+        <a href="#nosotros" class="text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Nuestra Historia</a>
+        <a href="#contacto" class="text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Contacto</a>
       </div>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleCart()" class="relative p-2 rounded-full hover:bg-brand-50 group">
+          <span class="iconify w-6 h-6 text-brown-400 group-hover:text-brand-500 transition-colors" data-icon="lucide:shopping-bag"></span>
+          <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+        </button>
+        <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-full hover:bg-brand-50">
+          <span class="iconify w-6 h-6 text-brown-400" data-icon="lucide:menu"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="md:hidden hidden border-t border-rose-100/60 bg-cream/95 backdrop-blur-xl">
+    <div class="px-4 py-4 flex flex-col gap-3">
+      <a href="#catalogo" onclick="toggleMobileMenu()" class="py-2 text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Catálogo</a>
+      <a href="#nosotros" onclick="toggleMobileMenu()" class="py-2 text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Nuestra Historia</a>
+      <a href="#contacto" onclick="toggleMobileMenu()" class="py-2 text-sm font-medium text-brown-400 hover:text-brand-500 transition-colors">Contacto</a>
     </div>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero-gradient pt-24 md:pt-32 pb-16 relative overflow-hidden"><div class="max-w-7xl mx-auto px-4 relative text-center"><h1 class="text-4xl md:text-6xl font-extrabold text-brown-600 mb-6 fade-in-up">Tu tienda, <span class="text-gradient">tu estilo</span></h1><a href="#catalogo" class="shimmer-btn text-white font-semibold px-8 py-4 rounded-full inline-block hover:shadow-lg transition-shadow fade-in-up delay-1">Ver Catálogo</a></div></section>
+<section class="hero-gradient pt-24 md:pt-32 pb-16 md:pb-24 relative overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <div class="text-center lg:text-left">
+        <div class="fade-in-up inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm border border-brand-200/50 rounded-full px-4 py-1.5 mb-6">
+          <span class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></span>
+          <span class="text-xs font-medium text-brown-400">Creatividad sin límites ✨</span>
+        </div>
+        <h1 class="fade-in-up delay-1 text-4xl md:text-5xl lg:text-6xl font-extrabold text-brown-600 leading-[1.1] tracking-tight mb-6">
+          Tu tienda, <span class="text-gradient">tu estilo</span>
+        </h1>
+        <p class="fade-in-up delay-2 text-lg md:text-xl text-brown-300 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+          Descubre productos únicos hechos con pasión. Desde Pixel Art hasta Amigurumis, en Pixushop encuentras todo lo que necesitas. 🎨
+        </p>
+        <div class="fade-in-up delay-3 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+          <a href="#catalogo" class="shimmer-btn text-white font-semibold px-8 py-4 rounded-full text-sm inline-flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-brand-500/20 transition-shadow">
+            Ver Catálogo
+            <span class="iconify w-4 h-4" data-icon="lucide:arrow-right"></span>
+          </a>
+        </div>
+      </div>
+      <div class="fade-in-up delay-3 relative flex justify-center">
+        <div class="relative float-anim">
+          <div class="absolute -inset-8 bg-brand-200/20 rounded-full blur-2xl"></div>
+          <img src="https://picsum.photos/seed/pixushop-hero/500/500.jpg" alt="Pixushop" class="relative w-72 h-72 md:w-96 md:h-96 rounded-[3rem] object-cover shadow-2xl shadow-brand-500/10 border border-brand-200/30">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- CATÁLOGO -->
-<section id="catalogo" class="py-16"><div class="max-w-7xl mx-auto px-4"><div class="flex flex-wrap justify-center gap-2 mb-10" id="filters"><button onclick="filterProducts('all')" class="category-btn active px-5 py-2 rounded-full text-sm border border-brand-200">Todos</button><button onclick="filterProducts('amigurumi')" class="category-btn px-5 py-2 rounded-full text-sm border border-brand-200">Amigurumi</button></div><div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="productsGrid"><div class="col-span-4 h-64 rounded-2xl loading-skeleton flex items-center justify-center text-brown-300">Cargando...</div></div></div></section>
+<section id="catalogo" class="py-16 md:py-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <span class="text-xs font-semibold uppercase tracking-widest text-brand-400 mb-3 block">Colección 2026</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-brown-600 mb-4">Nuestros Productos</h2>
+    </div>
+    
+    <!-- FILTROS -->
+    <div class="flex flex-wrap justify-center gap-2 mb-10" id="filters">
+      <button onclick="filterProducts('all')" class="category-btn active px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brand-500 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">Todos</button>
+      <button onclick="filterProducts('amigurumi')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">🧶 Amigurumi</button>
+      <button onclick="filterProducts('pixelart')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">👾 Pixel Art</button>
+      <button onclick="filterProducts('accesorios')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">🎨 Accesorios</button>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6" id="productsGrid">
+      <div class="col-span-2 md:col-span-3 lg:col-span-4 h-64 rounded-2xl loading-skeleton flex items-center justify-center text-brown-300">Cargando catálogo...</div>
+    </div>
+  </div>
+</section>
+
+<!-- NOSOTROS -->
+<section id="nosotros" class="py-16 md:py-24 bg-white/60">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <div class="relative"><img src="https://picsum.photos/seed/pixushop-artist/600/700.jpg" alt="Equipo" class="rounded-[2rem] w-full h-[400px] md:h-[500px] object-cover shadow-xl shadow-brand-500/10"><div class="absolute -bottom-6 -right-6 bg-white rounded-2xl p-5 shadow-lg border border-brand-100/50"><p class="text-3xl font-bold text-gradient">5+</p><p class="text-xs text-brown-300 mt-1">Años de<br>creatividad</p></div></div>
+      <div><span class="text-xs font-semibold uppercase tracking-widest text-brand-400 mb-3 block">Nuestra Historia</span><h2 class="text-3xl md:text-4xl font-bold text-brown-600 mb-6">El origen de Pixushop ✨</h2><p class="text-brown-300 leading-relaxed mb-4">Pixushop nació con la idea de fusionar lo artesanal con lo digital.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER / CONTACTO -->
+<footer id="contacto" class="bg-brown-600 text-brown-100 pt-16 pb-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+      <div class="col-span-2 md:col-span-1"><div class="flex items-center gap-2 mb-4"><span class="text-2xl">✨</span><span class="text-lg font-bold text-white">Pixushop</span></div><p class="text-sm text-brown-200 leading-relaxed mb-4">Tu tienda creativa de confianza.</p></div>
+      <div><h4 class="text-sm font-bold text-white mb-4">Tienda</h4><ul class="flex flex-col gap-2"><li><a href="#catalogo" class="text-sm text-brown-200 hover:text-brand-300 transition-colors">Catálogo</a></li></ul></div>
+      <div><h4 class="text-sm font-bold text-white mb-4">Ayuda</h4><ul class="flex flex-col gap-2"><li><a href="#" class="text-sm text-brown-200 hover:text-brand-300 transition-colors">Contacto</a></li></ul></div>
+    </div>
+    <div class="border-t border-brown-500 pt-8 text-center"><p class="text-xs text-brown-300">© 2025 Pixushop. Todos los derechos reservados.</p></div>
+  </div>
+</footer>
 
 <!-- CART SIDEBAR -->
 <div id="cartOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] hidden" onclick="toggleCart()"></div>
-<div id="cartSidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-cream z-[70] hidden flex-col shadow-2xl"><div class="flex items-center justify-between p-6 border-b border-rose-100/60"><div class="flex items-center gap-2"><span class="iconify w-5 h-5 text-brand-400" data-icon="lucide:shopping-bag"></span><h3 class="text-lg font-bold text-brown-600">Tu Carrito</h3></div><button onclick="toggleCart()" class="p-2 hover:bg-brand-50"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button></div><div class="flex-1 overflow-y-auto p-6" id="cartItems"></div><div id="cartFooter" class="hidden border-t border-rose-100/60 p-6 bg-white/50"><div class="flex justify-between mb-2"><span class="text-sm text-brown-300">Subtotal</span><span id="cartSubtotal" class="text-sm font-semibold text-brown-500">0,00 €</span></div><div class="flex justify-between mb-4 pt-2 border-t border-rose-100/60"><span class="text-base font-bold text-brown-600">Total</span><span id="cartTotal" class="text-lg font-bold text-gradient">0,00 €</span></div><button onclick="openCheckout()" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full hover:shadow-lg transition-shadow flex items-center justify-center gap-2">Proceder al Pago <span class="iconify w-4 h-4" data-icon="lucide:arrow-right"></span></button></div></div>
+<div id="cartSidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-cream z-[70] hidden flex-col shadow-2xl">
+  <div class="flex items-center justify-between p-6 border-b border-rose-100/60"><div class="flex items-center gap-2"><span class="iconify w-5 h-5 text-brand-400" data-icon="lucide:shopping-bag"></span><h3 class="text-lg font-bold text-brown-600">Tu Carrito</h3></div><button onclick="toggleCart()" class="p-2 hover:bg-brand-50"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button></div>
+  <div class="flex-1 overflow-y-auto p-6" id="cartItems"></div>
+  <div id="cartFooter" class="hidden border-t border-rose-100/60 p-6 bg-white/50">
+    <div class="flex justify-between mb-2"><span class="text-sm text-brown-300">Subtotal</span><span id="cartSubtotal" class="text-sm font-semibold text-brown-500">0,00 €</span></div>
+    <div class="flex justify-between mb-4 pt-2 border-t border-rose-100/60"><span class="text-base font-bold text-brown-600">Total</span><span id="cartTotal" class="text-lg font-bold text-gradient">0,00 €</span></div>
+    <button onclick="openCheckout()" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full hover:shadow-lg transition-shadow flex items-center justify-center gap-2">Proceder al Pago <span class="iconify w-4 h-4" data-icon="lucide:arrow-right"></span></button>
+  </div>
+</div>
 
-<!-- CHECKOUT MODAL -->
-<div id="checkoutModal" class="fixed inset-0 z-[90] hidden"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCheckout()"></div><div class="absolute inset-4 md:inset-y-10 md:inset-x-[20%] bg-white rounded-[2rem] overflow-hidden flex flex-col shadow-2xl max-h-[90vh]">
-    
-    <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50"><h3 class="text-xl font-bold text-gray-800">Finalizar Compra</h3><button onclick="closeCheckout()" class="p-2 hover:bg-gray-200 rounded-full"><span class="iconify w-6 h-6 text-gray-500" data-icon="lucide:x"></span></button></div>
-    <div class="flex-1 overflow-y-auto p-6 md:p-8" id="checkoutBody">
-      
-      <!-- STEP 0: USUARIO -->
-      <div id="step0" class="space-y-6">
-        <h4 class="text-lg font-bold text-gray-700 text-center">¿Cómo quieres continuar?</h4>
-        
-        <div class="grid md:grid-cols-2 gap-4">
-          <!-- Opción Invitado -->
-          <button onclick="selectUserType('guest')" id="btnGuest" class="p-6 border-2 border-gray-200 rounded-xl hover:border-brand-300 hover:bg-brand-50 transition-all text-left">
-            <div class="flex items-center gap-3 mb-2"><span class="text-2xl">👤</span><span class="font-bold text-gray-800">Como Invitado</span></div>
-            <p class="text-sm text-gray-500">Compra rápido sin registrarte.</p>
-          </button>
-          
-          <!-- Opción Registrado -->
-          <button onclick="selectUserType('register')" id="btnRegister" class="p-6 border-2 border-gray-200 rounded-xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left relative overflow-hidden group">
-            <div class="absolute top-0 right-0 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">-10% DTO</div>
-            <div class="flex items-center gap-3 mb-2"><span class="text-2xl">✨</span><span class="font-bold text-gray-800">Registrarme</span></div>
-            <p class="text-sm text-gray-500" id="discountMessage">Obtén beneficios exclusivos y descuentos.</p>
-          </button>
+<!-- MODAL PRODUCTO (CON GALERÍA) -->
+<div id="productModal" class="fixed inset-0 z-[80] hidden">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeProductModal()"></div>
+  <div class="absolute inset-4 md:inset-10 lg:inset-y-10 lg:inset-x-[20%] bg-cream rounded-[2rem] overflow-hidden flex flex-col shadow-2xl">
+    <div class="flex items-center justify-between p-6 border-b border-rose-100/60"><span class="text-xs font-medium text-brown-300">Detalle</span><button onclick="closeProductModal()" class="p-2 hover:bg-brand-50"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button></div>
+    <div class="flex-1 overflow-y-auto p-6 md:p-8">
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- COLUMNA IMÁGENES -->
+        <div class="flex flex-col gap-4">
+          <div class="relative w-full aspect-square rounded-2xl overflow-hidden border border-brand-100/50 bg-white">
+             <img id="modalMainImage" src="" alt="" class="w-full h-full object-cover transition-opacity duration-300">
+          </div>
+          <div id="modalGallery" class="flex gap-2 overflow-x-auto pb-2 hidden"></div>
+        </div>
+        <!-- COLUMNA INFO -->
+        <div>
+          <div id="modalBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-3"></div>
+          <h3 id="modalName" class="text-2xl font-bold text-brown-600 mb-2"></h3>
+          <div class="flex items-baseline gap-3 mb-6"><span id="modalPrice" class="text-3xl font-bold text-gradient"></span></div>
+          <p id="modalDesc" class="text-sm text-brown-300 leading-relaxed mb-6"></p>
+          <button id="modalAddBtn" onclick="" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full hover:shadow-lg transition-shadow flex items-center justify-center gap-2"><span class="iconify w-4 h-4" data-icon="lucide:shopping-bag"></span> Añadir al Carrito</button>
         </div>
       </div>
-
-      <!-- STEP 1: DATOS -->
-      <div id="step1" class="hidden space-y-6">
-        <h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">1</span> Datos de Envío</h4>
-        <div class="grid md:grid-cols-2 gap-4">
-          <input type="text" id="checkoutName" placeholder="Nombre completo" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
-          <input type="email" id="checkoutEmail" placeholder="Email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
-          <input type="text" id="checkoutAddress" placeholder="Dirección" class="md:col-span-2 w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
-          <input type="text" id="checkoutCity" placeholder="Ciudad" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
-          <input type="text" id="checkoutZip" placeholder="CP" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
-          <input type="text" id="checkoutCountry" placeholder="País" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
-          <input type="tel" id="checkoutPhone" placeholder="Teléfono" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
-        </div>
-        <div class="flex justify-between">
-            <button onclick="goToStep(0)" class="text-sm text-gray-500 hover:text-brand-500">Volver</button>
-            <button onclick="validateStep1()" class="bg-brand-500 text-white px-6 py-3 rounded-xl hover:bg-brand-600 transition-colors">Continuar</button>
-        </div>
-      </div>
-
-      <!-- STEP 2: PAGO -->
-      <div id="step2" class="hidden space-y-6">
-        <h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Método de Pago</h4>
-        
-        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-          <p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p>
-          <div id="checkoutSummaryList" class="text-sm space-y-1 mb-2 text-gray-700"></div>
-          <div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800 text-lg"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div>
-          <div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div>
-        </div>
-
-        <div class="space-y-3">
-          <button onclick="selectPaymentMethod('stripe')" id="btnStripe" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all"><div class="flex items-center gap-3"><span class="text-2xl">💳</span><span class="font-semibold text-gray-700">Tarjeta Crédito / Débito</span></div></button>
-          <button onclick="selectPaymentMethod('paypal')" id="btnPaypal" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all"><div class="flex items-center gap-3"><span class="text-2xl">🅿️</span><span class="font-semibold text-gray-700">PayPal</span></div></button>
-        </div>
-
-        <!-- Stripe UI -->
-        <div id="stripeContainer" class="hidden p-4 border border-gray-200 rounded-xl bg-white">
-            <div id="stripe-card-element" class="py-2"></div>
-            <button id="stripePayBtn" class="w-full mt-4 bg-black text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity">Pagar <span id="stripeBtnAmount"></span></button>
-        </div>
-
-        <!-- PayPal UI -->
-        <div id="paypalContainer" class="hidden text-center p-4 border border-gray-200 rounded-xl">
-           <p class="text-sm text-gray-500 mb-4">Serás redirigido a PayPal para completar el pago de forma segura.</p>
-           <div id="paypal-button-container"></div>
-        </div>
-        
-        <button onclick="goToStep(1)" class="w-full text-center text-sm text-gray-500 hover:text-brand-500 underline">Volver</button>
-      </div>
-
-      <!-- STEP 3: CONFIRMACIÓN -->
-      <div id="step3" class="hidden text-center py-10"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✅</div><h3 class="text-2xl font-bold text-gray-800 mb-2">¡Pedido Confirmado!</h3><p class="text-gray-500 mb-6">Gracias por tu compra. Te hemos enviado un email con los detalles.</p><button onclick="closeCheckout()" class="bg-brand-500 text-white px-8 py-3 rounded-full font-semibold">Seguir Comprando</button></div>
-
     </div>
   </div>
 </div>
 
-<!-- MODAL PRODUCTO -->
-<div id="productModal" class="fixed inset-0 z-[80] hidden"><div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeProductModal()"></div><div class="absolute inset-4 md:inset-10 bg-cream rounded-[2rem] overflow-hidden flex flex-col shadow-2xl"><div class="flex items-center justify-between p-6 border-b border-rose-100/60"><span class="text-xs font-medium text-brown-300">Detalle</span><button onclick="closeProductModal()" class="p-2 hover:bg-brand-50"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button></div><div class="flex-1 overflow-y-auto p-6"><div class="grid md:grid-cols-2 gap-8"><div class="relative w-full aspect-square rounded-2xl overflow-hidden border border-brand-100/50"><img id="modalMainImage" src="" alt="" class="w-full h-full object-cover"></div><div><h3 id="modalName" class="text-2xl font-bold text-brown-600 mb-2"></h3><div id="modalPrice" class="text-3xl font-bold text-gradient mb-4"></div><p id="modalDesc" class="text-sm text-brown-300 leading-relaxed mb-6"></p><button id="modalAddBtn" onclick="" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full hover:shadow-lg transition-shadow flex items-center justify-center gap-2"><span class="iconify w-4 h-4" data-icon="lucide:shopping-bag"></span> Añadir al Carrito</button></div></div></div></div></div>
+<!-- CHECKOUT MODAL (E-COMMERCE) -->
+<div id="checkoutModal" class="fixed inset-0 z-[90] hidden"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCheckout()"></div><div class="absolute inset-4 md:inset-y-10 md:inset-x-[20%] bg-white rounded-[2rem] overflow-hidden flex flex-col shadow-2xl max-h-[90vh]">
+  <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50"><h3 class="text-xl font-bold text-gray-800">Finalizar Compra</h3><button onclick="closeCheckout()" class="p-2 hover:bg-gray-200 rounded-full"><span class="iconify w-6 h-6 text-gray-500" data-icon="lucide:x"></span></button></div>
+  <div class="flex-1 overflow-y-auto p-6 md:p-8" id="checkoutBody">
+    
+    <!-- STEP 0: USUARIO -->
+    <div id="step0" class="space-y-6"><h4 class="text-lg font-bold text-gray-700 text-center">¿Cómo quieres continuar?</h4>
+      <div class="grid md:grid-cols-2 gap-4">
+        <button onclick="selectUserType('guest')" id="btnGuest" class="p-6 border-2 border-gray-200 rounded-xl hover:border-brand-300 hover:bg-brand-50 transition-all text-left"><div class="flex items-center gap-3 mb-2"><span class="text-2xl">👤</span><span class="font-bold text-gray-800">Como Invitado</span></div><p class="text-sm text-gray-500">Compra rápido sin registrarte.</p></button>
+        <button onclick="selectUserType('register')" id="btnRegister" class="p-6 border-2 border-gray-200 rounded-xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left relative overflow-hidden group"><div class="absolute top-0 right-0 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">-10% DTO</div><div class="flex items-center gap-3 mb-2"><span class="text-2xl">✨</span><span class="font-bold text-gray-800">Registrarme</span></div><p class="text-sm text-gray-500" id="discountMessage">Obtén beneficios exclusivos y descuentos.</p></button>
+      </div>
+    </div>
+
+    <!-- STEP 1: DATOS -->
+    <div id="step1" class="hidden space-y-6"><h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">1</span> Datos de Envío</h4>
+      <div class="grid md:grid-cols-2 gap-4">
+        <input type="text" id="checkoutName" placeholder="Nombre completo" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
+        <input type="email" id="checkoutEmail" placeholder="Email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
+        <input type="text" id="checkoutAddress" placeholder="Dirección" class="md:col-span-2 w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
+        <input type="text" id="checkoutCity" placeholder="Ciudad" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
+        <input type="text" id="checkoutZip" placeholder="Código Postal" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
+      </div>
+      <div class="flex justify-between"><button onclick="goToStep(0)" class="text-sm text-gray-500 hover:text-brand-500">Volver</button><button onclick="validateStep1()" class="bg-brand-500 text-white px-6 py-3 rounded-xl hover:bg-brand-600 transition-colors">Continuar</button></div>
+    </div>
+
+    <!-- STEP 2: PAGO -->
+    <div id="step2" class="hidden space-y-6"><h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Método de Pago</h4>
+      <div class="bg-gray-50 p-4 rounded-xl border border-gray-200"><p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p><div id="checkoutSummaryList" class="text-sm space-y-1 mb-2 text-gray-700"></div><div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800 text-lg"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div><div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div></div>
+      <div class="space-y-3">
+        <button onclick="selectPaymentMethod('stripe')" id="btnStripe" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all"><div class="flex items-center gap-3"><span class="text-2xl">💳</span><span class="font-semibold text-gray-700">Tarjeta Crédito / Débito</span></div></button>
+        <button onclick="selectPaymentMethod('paypal')" id="btnPaypal" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all"><div class="flex items-center gap-3"><span class="text-2xl">🅿️</span><span class="font-semibold text-gray-700">PayPal</span></div></button>
+      </div>
+      <div id="stripeContainer" class="hidden p-4 border border-gray-200 rounded-xl bg-white"><div id="stripe-card-element"></div><button id="stripePayBtn" class="w-full mt-4 bg-black text-white font-bold py-3 rounded-lg hover:opacity-90">Pagar <span id="stripeBtnAmount"></span></button></div>
+      <div id="paypalContainer" class="hidden text-center p-4 border border-gray-200 rounded-xl"><p class="text-sm text-gray-500 mb-4">Serás redirigido a PayPal.</p><div id="paypal-button-container"></div></div>
+      <button onclick="goToStep(1)" class="w-full text-center text-sm text-gray-500 hover:text-brand-500 underline">Volver</button>
+    </div>
+
+    <!-- STEP 3: CONFIRMACIÓN -->
+    <div id="step3" class="hidden text-center py-10"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✅</div><h3 class="text-2xl font-bold text-gray-800 mb-2">¡Pedido Confirmado!</h3><p class="text-gray-500 mb-6">Gracias por tu compra.</p><button onclick="closeCheckout()" class="bg-brand-500 text-white px-8 py-3 rounded-full font-semibold">Seguir Comprando</button></div>
+  </div>
+</div>
 
 <script>
 // ==========================================
-// CONFIGURACIÓN DE URLs
+// CONFIGURACIÓN
 // ==========================================
-// 🔴 IMPORTANTE: PEGA AQUÍ LA URL DE TU ARCHIVO CONFIG.JSON
-const CONFIG_URL = "https://pwee1pues7woacfy.public.blob.vercel-storage.com/config.json";
-
+const CONFIG_URL = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/config.json";
 const GITHUB_DATA_URL = "https://script.google.com/macros/s/AKfycbxHicS9A7XKtdd5j2BBKj2YVh6O-zHzraBK_Bt3aB-x6l1EBZfd-AT5SGHOEndK1oS_JQ/exec";
 
 let products = [];
 let cart = [];
 let appConfig = {};
 let stripe, paypalLoaded = false, stripeLoaded = false;
-let currentUserType = 'guest'; // 'guest' o 'register'
+let currentUserType = 'guest';
 let isDiscountActive = false;
 
 // ==========================================
 // INIT
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  fetchConfig(); // Cargar config primero
+  fetchConfig();
   fetchProducts();
   loadCart();
 });
 
 // ==========================================
-// CARGA DE CONFIGURACIÓN
+// CONFIG & SDK LOADERS
 // ==========================================
 async function fetchConfig() {
   try {
     const res = await fetch(CONFIG_URL);
     if(!res.ok) throw new Error("Error config");
     appConfig = await res.json();
-    
-    // Cargar mensajes
-    if(appConfig.messages && appConfig.messages.register_discount) {
-        document.getElementById('discountMessage').textContent = appConfig.messages.register_discount;
-    }
-
-    // Pre-cargar scripts de pago si hay claves (opcional para optimizar)
-    if(appConfig.payment && appConfig.payment.paypal_client_id && appConfig.payment.paypal_client_id !== 'TU_CLIENT_ID_PAYPAL_AQUI') {
-        loadPayPalScript(appConfig.payment.paypal_client_id);
-    }
-    if(appConfig.payment && appConfig.payment.stripe_key && appConfig.payment.stripe_key !== 'pk_test_TU_CLAVE_STRIPE_AQUI') {
-        loadStripeScript(appConfig.payment.stripe_key);
-    }
-
+    if(appConfig.messages && appConfig.messages.register_discount) document.getElementById('discountMessage').textContent = appConfig.messages.register_discount;
+    if(appConfig.payment && appConfig.payment.paypal_client_id && appConfig.payment.paypal_client_id !== 'TU_CLIENT_ID_PAYPAL_AQUI') loadPayPalScript(appConfig.payment.paypal_client_id);
+    if(appConfig.payment && appConfig.payment.stripe_key && appConfig.payment.stripe_key !== 'pk_test_TU_CLAVE_STRIPE_AQUI') loadStripeScript(appConfig.payment.stripe_key);
   } catch (e) {
-    console.warn("No se pudo cargar config.json, usando defaults.", e);
+    console.warn("Config error", e);
     appConfig = { payment: { shipping_cost: 4.99 }, messages: { register_discount: "Regístrate y ahorra." } };
   }
 }
 
-function loadPayPalScript(clientId) {
+function loadPayPalScript(id) {
     if(paypalLoaded) return;
-    const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=EUR`;
-    script.onload = () => { paypalLoaded = true; };
-    document.head.appendChild(script);
+    const s = document.createElement('script'); s.src = `https://www.paypal.com/sdk/js?client-id=${id}&currency=EUR`;
+    s.onload = () => { paypalLoaded = true; }; document.head.appendChild(s);
 }
 
 function loadStripeScript(pk) {
     if(stripeLoaded) return;
-    const script = document.createElement('script');
-    script.src = "https://js.stripe.com/v3/";
-    script.onload = () => {
-        stripe = Stripe(pk);
-        initStripeElements();
-    };
-    document.head.appendChild(script);
-}
-
-function initStripeElements() {
-    if(!stripe) return;
-    const elements = stripe.elements();
-    const card = elements.create('card', {
-      style: { base: { fontSize: '16px', color: '#424770', '::placeholder': { color: '#aab7c4' } } }
-    });
-    card.mount('#stripe-card-element');
-    card.on('change', (e) => { document.getElementById('stripe-errors').textContent = e.error ? e.error.message : ''; });
-    
-    document.getElementById('stripePayBtn').addEventListener('click', async () => {
-        const btn = document.getElementById('stripePayBtn');
-        btn.textContent = "Procesando...";
-        btn.disabled = true;
-        // SIMULACIÓN DE PAGO
-        setTimeout(() => { goToStep(3); completeOrder(); }, 2000);
-    });
+    const s = document.createElement('script'); s.src = "https://js.stripe.com/v3/";
+    s.onload = () => { stripe = Stripe(pk); const e = stripe.elements().create('card'); e.mount('#stripe-card-element'); document.getElementById('stripePayBtn').onclick = () => { setTimeout(()=>{goToStep(3); completeOrder();}, 1500); }; };
+    document.head.appendChild(s);
 }
 
 // ==========================================
-// LÓGICA DE PRODUCTOS
+// FETCH & RENDER
 // ==========================================
 async function fetchProducts() {
   try {
@@ -282,38 +332,44 @@ async function fetchProducts() {
 
 function renderProducts(list) {
   const grid = document.getElementById('productsGrid');
-  grid.innerHTML = list.map(p => `
-    <div class="product-card bg-white rounded-2xl border border-brand-100/50 cursor-pointer" onclick="openProductModal(${p.id})">
-      <div class="relative overflow-hidden aspect-square">
-        <img src="${p.img.includes(',')?p.img.split(',')[0]:p.img}" class="product-img w-full h-full object-cover">
+  grid.innerHTML = list.map((p) => {
+    const mainImg = p.img.includes(',') ? p.img.split(',')[0].trim() : p.img;
+    return `
+    <div class="product-card bg-white rounded-2xl border border-brand-100/50 overflow-hidden cursor-pointer group" onclick="openProductModal(${p.id})">
+      <div class="relative overflow-hidden">
+        <img src="${mainImg}" alt="${p.name}" class="product-img w-full aspect-square object-cover">
+        ${p.badge ? `<span class="badge-new absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase">${p.badge}</span>` : ''}
+        <button onclick="event.stopPropagation(); addToCart(${p.id})" class="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-brand-500 hover:text-white text-brown-400"><span class="iconify w-5 h-5" data-icon="lucide:plus"></span></button>
       </div>
-      <div class="p-4"><h3 class="font-bold text-gray-800">${p.name}</h3><p class="font-bold text-brand-500">${formatMoney(p.price)}</p></div>
+      <div class="p-3 md:p-4">
+        <div class="flex items-center gap-1 mb-1"><span class="text-base">${p.emoji || '🛍️'}</span><span class="text-[10px] text-brown-200 capitalize">${p.category || 'General'}</span></div>
+        <h3 class="text-sm font-bold text-brown-600 mb-1.5 group-hover:text-brand-500 transition-colors">${p.name}</h3>
+        <div class="flex items-baseline gap-2"><span class="text-base font-bold text-brand-500">${formatMoney(p.price)}</span></div>
+      </div>
     </div>
-  `).join('');
+  `}).join('');
 }
+
 function filterProducts(cat) {
-  document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
   event.target.classList.add('active');
-  renderProducts(cat==='all' ? products : products.filter(p=>p.category===cat));
+  renderProducts(cat === 'all' ? products : products.filter(p => p.category === cat));
 }
 
 // ==========================================
-// CARRITO
+// CART & MODALS
 // ==========================================
 function addToCart(id) {
   const p = products.find(x => x.id === id);
   const existing = cart.find(x => x.id === id);
   if (existing) existing.qty++; else cart.push({...p, qty:1});
-  updateCartUI();
-  saveCart();
-  showToast('Añadido al carrito');
+  updateCartUI(); saveCart(); showToast('Añadido al carrito');
 }
 
 function updateCartUI() {
   const count = cart.reduce((a,b)=>a+b.qty,0);
   document.getElementById('cartCount').textContent = count;
   document.getElementById('cartCount').classList.toggle('hidden', count===0);
-
   const list = document.getElementById('cartItems');
   if(!count) {
     list.innerHTML = '<div class="text-center text-gray-400 mt-10">Carrito vacío</div>';
@@ -338,155 +394,148 @@ function updateQty(id, d) {
 }
 function removeFromCart(id) { cart = cart.filter(x => x.id !== id); updateCartUI(); saveCart(); }
 
-function getTotal(applyDiscount = true) {
-    let total = cart.reduce((a,b)=>a+(b.price*b.qty),0);
-    if(applyDiscount && isDiscountActive) total = total * 0.9;
-    return total;
+function getTotal(applyDisc=true) {
+    let t = cart.reduce((a,b)=>a+(b.price*b.qty),0);
+    if(applyDisc && isDiscountActive) t *= 0.9;
+    return t;
 }
 
 function formatMoney(n) { return n.toLocaleString('es-ES',{style:'currency',currency:'EUR'}); }
-
 function saveCart() { localStorage.setItem('pixushop_cart', JSON.stringify(cart)); }
 function loadCart() {
   const s = localStorage.getItem('pixushop_cart');
   if(s) { cart = JSON.parse(s); updateCartUI(); }
 }
 
-// Modal Producto
+// GALERÍA
 function openProductModal(id) {
   const p = products.find(x => x.id === id);
   if(!p) return;
-  document.getElementById('modalMainImage').src = p.img.includes(',')?p.img.split(',')[0]:p.img;
+
+  // Imágenes
+  let images = [];
+  if (typeof p.img === 'string') {
+    images = p.img.includes(',') ? p.img.split(',').map(u=>u.trim()) : [p.img];
+  } else { images = [p.img]; }
+
+  const mainImgEl = document.getElementById('modalMainImage');
+  mainImgEl.src = images[0];
+
+  const galleryEl = document.getElementById('modalGallery');
+  galleryEl.innerHTML = '';
+  if(images.length > 1) {
+    galleryEl.classList.remove('hidden');
+    images.forEach((url, index) => {
+      const thumb = document.createElement('div');
+      thumb.className = `w-16 h-16 rounded-lg overflow-hidden border-2 cursor-pointer flex-shrink-0 ${index === 0 ? 'border-brand-500' : 'border-transparent'}`;
+      thumb.onclick = () => {
+        mainImgEl.src = url;
+        Array.from(galleryEl.children).forEach(c => { c.classList.remove('border-brand-500'); c.classList.add('border-transparent'); });
+        thumb.classList.remove('border-transparent');
+        thumb.classList.add('border-brand-500');
+      };
+      const img = document.createElement('img'); img.src = url; img.className = "w-full h-full object-cover";
+      thumb.appendChild(img); galleryEl.appendChild(thumb);
+    });
+  } else { galleryEl.classList.add('hidden'); }
+
+  // Info
   document.getElementById('modalName').textContent = p.name;
   document.getElementById('modalPrice').textContent = formatMoney(p.price);
   document.getElementById('modalDesc').textContent = p.desc;
   document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id); closeProductModal(); };
-  document.getElementById('productModal').classList.remove('hidden');
+  
+  const badge = document.getElementById('modalBadge');
+  if(p.badge) { badge.textContent = p.badge.toUpperCase(); badge.className = 'inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-3 badge-new'; }
+  else { badge.className = 'hidden'; }
+  
+  document.getElementById('productModal').classList.remove('hidden'); document.body.style.overflow = 'hidden';
 }
-function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
-
+function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); document.body.style.overflow = ''; }
 
 // ==========================================
 // CHECKOUT LOGIC
 // ==========================================
 function openCheckout() {
   if(cart.length === 0) return showToast('Carrito vacío', 'error');
-  document.getElementById('checkoutModal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  goToStep(0);
+  document.getElementById('checkoutModal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; goToStep(0);
 }
-function closeCheckout() {
-  document.getElementById('checkoutModal').classList.add('hidden');
-  document.body.style.overflow = '';
-}
+function closeCheckout() { document.getElementById('checkoutModal').classList.add('hidden'); document.body.style.overflow = ''; }
 
 function goToStep(n) {
-  document.getElementById('step0').classList.add('hidden');
-  document.getElementById('step1').classList.add('hidden');
-  document.getElementById('step2').classList.add('hidden');
-  document.getElementById('step3').classList.add('hidden');
+  document.getElementById('step0').classList.add('hidden'); document.getElementById('step1').classList.add('hidden'); document.getElementById('step2').classList.add('hidden'); document.getElementById('step3').classList.add('hidden');
   document.getElementById('step'+n).classList.remove('hidden');
-  
   if(n===2) renderPaymentStep();
 }
 
-function selectUserType(type) {
-    currentUserType = type;
-    const btnGuest = document.getElementById('btnGuest');
-    const btnReg = document.getElementById('btnRegister');
-    
-    btnGuest.className = "p-6 border-2 rounded-xl transition-all text-left " + (type === 'guest' ? "border-brand-500 bg-brand-50" : "border-gray-200 hover:border-brand-300");
-    btnReg.className = "p-6 border-2 rounded-xl transition-all text-left relative overflow-hidden group " + (type === 'register' ? "border-brand-500 bg-brand-50" : "border-gray-200 hover:border-brand-300");
-
-    isDiscountActive = (type === 'register');
-    setTimeout(() => goToStep(1), 300);
+function selectUserType(t) {
+    currentUserType = t;
+    const g = document.getElementById('btnGuest'); const r = document.getElementById('btnRegister');
+    g.className = "p-6 border-2 rounded-xl transition-all text-left " + (t==='guest'?"border-brand-500 bg-brand-50":"border-gray-200 hover:border-brand-300");
+    r.className = "p-6 border-2 rounded-xl transition-all text-left relative overflow-hidden " + (t==='register'?"border-brand-500 bg-brand-50":"border-gray-200 hover:border-brand-300");
+    isDiscountActive = (t==='register');
+    setTimeout(()=>goToStep(1), 300);
 }
 
 function validateStep1() {
-    const name = document.getElementById('checkoutName').value;
-    const email = document.getElementById('checkoutEmail').value;
-    if(!name || !email) return alert('Por favor introduce nombre y email');
+    if(!document.getElementById('checkoutName').value || !document.getElementById('checkoutEmail').value) return alert('Datos requeridos');
     goToStep(2);
 }
 
 function renderPaymentStep() {
-    // Resumen
     const list = document.getElementById('checkoutSummaryList');
     list.innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${formatMoney(i.price*i.qty*(isDiscountActive?0.9:1))}</span></div>`).join('');
-    
     const total = getTotal(true);
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
     document.getElementById('stripeBtnAmount').textContent = formatMoney(total);
-
-    // Mostrar descuento si aplica
-    const discDisp = document.getElementById('discountDisplay');
-    if(isDiscountActive) {
-        discDisp.classList.remove('hidden');
-        discDisp.textContent = "¡Descuento de registro aplicado! (-10%)";
-    } else {
-        discDisp.classList.add('hidden');
-    }
-
-    // Resetear selección pago
-    document.getElementById('stripeContainer').classList.add('hidden');
-    document.getElementById('paypalContainer').classList.add('hidden');
+    
+    const disc = document.getElementById('discountDisplay');
+    if(isDiscountActive) { disc.classList.remove('hidden'); disc.textContent = "Descuento de registro: -10%"; } else { disc.classList.add('hidden'); }
+    
+    document.getElementById('stripeContainer').classList.add('hidden'); document.getElementById('paypalContainer').classList.add('hidden');
+    document.getElementById('btnStripe').classList.remove('border-brand-500','bg-brand-50'); document.getElementById('btnPaypal').classList.remove('border-brand-500','bg-brand-50');
 }
 
 function selectPaymentMethod(m) {
-    const btnS = document.getElementById('btnStripe');
-    const btnP = document.getElementById('btnPaypal');
-    const contS = document.getElementById('stripeContainer');
-    const contP = document.getElementById('paypalContainer');
-
+    const sC = document.getElementById('stripeContainer'); const pC = document.getElementById('paypalContainer');
+    const bS = document.getElementById('btnStripe'); const bP = document.getElementById('btnPaypal');
+    
     if(m==='stripe') {
-        btnS.classList.add('border-brand-500', 'bg-brand-50'); btnP.classList.remove('border-brand-500', 'bg-brand-50');
-        contS.classList.remove('hidden'); contP.classList.add('hidden');
+        bS.classList.add('border-brand-500','bg-brand-50'); bP.classList.remove('border-brand-500','bg-brand-50');
+        sC.classList.remove('hidden'); pC.classList.add('hidden');
     } else {
-        btnP.classList.add('border-brand-500', 'bg-brand-50'); btnS.classList.remove('border-brand-500', 'bg-brand-50');
-        contP.classList.remove('hidden'); contS.classList.add('hidden');
+        bP.classList.add('border-brand-500','bg-brand-50'); bS.classList.remove('border-brand-500','bg-brand-50');
+        pC.classList.remove('hidden'); sC.classList.add('hidden');
         renderPaypalButton();
     }
 }
 
-// ==========================================
-// PAYPAL INTEGRATION
-// ==========================================
 function renderPaypalButton() {
-    if(!paypalLoaded) return;
-    const container = document.getElementById('paypal-button-container');
-    container.innerHTML = '';
-    
-    // Si hay clave configurada y válida
-    if(appConfig.payment && appConfig.payment.paypal_client_id && appConfig.payment.paypal_client_id.includes('Ac')) {
-        paypal.Buttons({
-            createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { value: getTotal(true).toFixed(2) } }] }),
-            onApprove: (data, actions) => actions.order.capture().then(() => { goToStep(3); completeOrder(); })
-        }).render('#paypal-button-container');
-    } else {
-        container.innerHTML = '<p class="text-red-500 text-sm">PayPal no configurado en config.json (Client ID)</p>';
-    }
+    if(!paypalLoaded || !appConfig.payment || !appConfig.payment.paypal_client_id) return;
+    const c = document.getElementById('paypal-button-container'); c.innerHTML = '';
+    paypal.Buttons({
+        createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: getTotal(true).toFixed(2) } }] }),
+        onApprove: (d,a) => a.order.capture().then(() => { goToStep(3); completeOrder(); })
+    }).render('#paypal-button-container');
 }
 
 function completeOrder() {
-    cart = [];
-    saveCart();
-    updateCartUI();
+    cart = []; saveCart(); updateCartUI();
 }
 
 // Utils
-function showToast(m, t='success') {
+function showToast(m,t='success') {
   const d = document.createElement('div');
   d.className = `toast-enter p-4 rounded-xl shadow-lg border bg-white ${t==='error'?'border-red-200':'border-green-200'}`;
-  d.textContent = m;
-  document.getElementById('toastContainer').appendChild(d);
+  d.textContent = m; document.getElementById('toastContainer').appendChild(d);
   setTimeout(()=>d.remove(), 3000);
 }
 function toggleCart() {
-  const s = document.getElementById('cartSidebar');
-  const o = document.getElementById('cartOverlay');
+  const s = document.getElementById('cartSidebar'); const o = document.getElementById('cartOverlay');
   if(s.classList.contains('hidden')){s.classList.remove('hidden');s.classList.add('flex');o.classList.remove('hidden');document.body.style.overflow='hidden'}
   else{s.classList.add('hidden');s.classList.remove('flex');o.classList.add('hidden');document.body.style.overflow=''}
 }
+function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
 </script>
 </body>
 </html>
