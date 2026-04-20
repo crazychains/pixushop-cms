@@ -321,11 +321,42 @@ async function fetchProducts() {
   try {
     const res = await fetch(GITHUB_DATA_URL);
     const data = await res.json();
-    products = Array.isArray(data) ? data : [];
-    renderProducts(products);
+    
+    // Aseguramos que sea un array
+    if (!Array.isArray(data)) throw new Error("Formato incorrecto");
+    products = data;
+
+    // ==========================================
+    // LÓGICA DE PORTADA (TOP 10)
+    // ==========================================
+    // 1. Buscamos productos marcados del 1 al 10 en 'reviews'
+    let topProducts = products.filter(p => {
+      // Convertimos a número para estar seguros
+      const reviews = parseInt(p.reviews); 
+      // Si es un número entre 1 y 10, es un destacado de portada
+      return !isNaN(reviews) && reviews >= 1 && reviews <= 10;
+    });
+
+    // 2. Ordenamos estos destacados por su número (1, 2, 3...)
+    topProducts.sort((a, b) => parseInt(a.reviews) - parseInt(b.reviews));
+
+    // 3. Buscamos el resto de productos (los que no son 1-10)
+    let otherProducts = products.filter(p => {
+      const reviews = parseInt(p.reviews);
+      // Si no es 1-10, va a la lista normal
+      return isNaN(reviews) || reviews > 10;
+    });
+
+    // 4. Combinamos: Primero los Top, luego el resto
+    const finalOrder = [...topProducts, ...otherProducts];
+
+    // 5. Renderizamos todo el catálogo ordenado así
+    renderProducts(finalOrder);
+
   } catch (e) {
     console.error(e);
-    products = [{ id:1, name: "Demo", price:10, img:"https://picsum.photos/200", emoji:"🛍️", category:"test", desc:"Demo" }];
+    // Fallback por si falla la carga
+    products = [{ id:1, name: "Demo", price:10, img:"https://picsum.photos/200", emoji:"🛍️", category:"test", desc:"Demo", reviews: 0 }];
     renderProducts(products);
   }
 }
