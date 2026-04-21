@@ -145,11 +145,11 @@ tailwind.config = {
     
     <!-- FILTROS -->
     <div class="flex flex-wrap justify-center gap-2 mb-10" id="filters">
-      <button onclick="filterProducts('all')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brand-500 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">Todos</button>
-      <button onclick="filterProducts('TOP10')" class="category-btn active px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brand-500 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">Top10</button>
-      <button onclick="filterProducts('amigurumi')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">👾 Amigurumi</button>
-      <button onclick="filterProducts('Cross Stich')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">🧶 Cross Stich</button>
-      <button onclick="filterProducts('Miyuki')" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">🎨 Miyuki</button>
+      <button onclick="filterProducts('all', this)" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brand-500 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">Todos</button>
+      <button onclick="filterProducts('TOP10', this)" class="category-btn active px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brand-500 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">Top10</button>
+      <button onclick="filterProducts('amigurumi', this)" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">👾 Amigurumi</button>
+      <button onclick="filterProducts('Cross Stich', this)" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">🧶 Cross Stich</button>
+      <button onclick="filterProducts('Miyuki', this)" class="category-btn px-5 py-2 rounded-full text-sm font-medium border border-brand-200 text-brown-400 hover:bg-brand-500 hover:text-white hover:border-brand-500 transition-all">🎨 Miyuki</button>
     </div>
 
     <!-- GRID -->
@@ -163,7 +163,23 @@ tailwind.config = {
 <section id="nosotros" class="py-16 md:py-24 bg-white/60">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-2 gap-12 items-center">
-      <div class="relative"><img src="https://picsum.photos/seed/pixushop-artist/600/700.jpg" alt="Equipo" class="rounded-[2rem] w-full h-[400px] md:h-[500px] object-cover shadow-xl shadow-brand-500/10"><div class="absolute -bottom-6 -right-6 bg-white rounded-2xl p-5 shadow-lg border border-brand-100/50"><p class="text-3xl font-bold text-gradient">5+</p><p class="text-xs text-brown-300 mt-1">Años de<br>creatividad</p></div></div>
+      <div class="relative">
+        <!-- CARRUSEL -->
+        <div class="carousel-nosotros rounded-[2rem] w-full h-[400px] md:h-[500px] overflow-hidden shadow-xl shadow-brand-500/10 relative">
+          <div class="carousel-track flex h-full transition-transform duration-700 ease-in-out">
+            <img src="https://www.artesanum.com/content/upi/2/30132/4/20d116f1834545fd.jpg?w=560" alt="Evento Pixushop" class="carousel-slide w-full h-full object-cover flex-shrink-0">
+            <img src="https://www.artesanum.com/content/upi/2/30132/4/20d116f1834545xx.jpg?w=560" alt="Mercado Pixushop" class="carousel-slide w-full h-full object-cover flex-shrink-0">
+            <img src="https://www.artesanum.com/content/upi/2/30132/4/20d116f1834545zz.jpg?w=560" alt="Mercado Pixushop" class="carousel-slide w-full h-full object-cover flex-shrink-0">
+          </div>
+          <!-- Puntos indicadores -->
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            <span class="carousel-dot w-2 h-2 rounded-full bg-white opacity-100 transition-opacity"></span>
+            <span class="carousel-dot w-2 h-2 rounded-full bg-white opacity-40 transition-opacity"></span>
+            <span class="carousel-dot w-2 h-2 rounded-full bg-white opacity-40 transition-opacity"></span>
+          </div>
+        </div>
+        <div class="absolute -bottom-6 -right-6 bg-white rounded-2xl p-5 shadow-lg border border-brand-100/50"><p class="text-3xl font-bold text-gradient">5+</p><p class="text-xs text-brown-300 mt-1">Años de<br>creatividad</p></div>
+      </div>
       <div><span class="text-xs font-semibold uppercase tracking-widest text-brand-400 mb-3 block">Nuestra Historia</span><h2 class="text-3xl md:text-4xl font-bold text-brown-600 mb-6">El origen de Pixushop ✨</h2><p class="text-brown-300 leading-relaxed mb-4">Pixushop nació con la idea de fusionar lo artesanal con lo digital.</p></div>
     </div>
   </div>
@@ -177,7 +193,7 @@ tailwind.config = {
       <div><h4 class="text-sm font-bold text-white mb-4">Tienda</h4><ul class="flex flex-col gap-2"><li><a href="#catalogo" class="text-sm text-brown-200 hover:text-brand-300 transition-colors">Catálogo</a></li></ul></div>
       <div><h4 class="text-sm font-bold text-white mb-4">Ayuda</h4><ul class="flex flex-col gap-2"><li><a href="#" class="text-sm text-brown-200 hover:text-brand-300 transition-colors">Contacto</a></li></ul></div>
     </div>
-    <div class="border-t border-brown-500 pt-8 text-center"><p class="text-xs text-brown-300">© 2025 Pixushop. Todos los derechos reservados.</p></div>
+    <div class="border-t border-brown-500 pt-8 text-center"><p class="text-xs text-brown-300">© 2026 Pixushop. Todos los derechos reservados.</p></div>
   </div>
 </footer>
 
@@ -330,22 +346,19 @@ async function fetchProducts() {
     // ==========================================
     // LÓGICA DE PORTADA (TOP 10)
     // ==========================================
-    // 1. Buscamos productos marcados del 1 al 10 en 'reviews'
+    // 1. Buscamos productos marcados del 1 al 10 en 'orden'
     let topProducts = products.filter(p => {
-      // Convertimos a número para estar seguros
-      const reviews = parseInt(p.reviews); 
-      // Si es un número entre 1 y 10, es un destacado de portada
-      return !isNaN(reviews) && reviews >= 1 && reviews <= 10;
+      const orden = parseInt(p.orden);
+      return !isNaN(orden) && orden >= 1 && orden <= 10;
     });
 
     // 2. Ordenamos estos destacados por su número (1, 2, 3...)
-    topProducts.sort((a, b) => parseInt(a.reviews) - parseInt(b.reviews));
+    topProducts.sort((a, b) => parseInt(a.orden) - parseInt(b.orden));
 
     // 3. Buscamos el resto de productos (los que no son 1-10)
     let otherProducts = products.filter(p => {
-      const reviews = parseInt(p.reviews);
-      // Si no es 1-10, va a la lista normal
-      return isNaN(reviews) || reviews > 10;
+      const orden = parseInt(p.orden);
+      return isNaN(orden) || orden > 10;
     });
 
     // 4. Combinamos: Primero los Top, luego el resto
@@ -382,9 +395,9 @@ function renderProducts(list) {
   `}).join('');
 }
 
-function filterProducts(category) {
-  document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+function filterProducts(category, btn) {
+  document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 
   if (category === 'all') {
     renderProducts(products); // Ya vienen ordenados por fetchProducts
@@ -397,12 +410,12 @@ function filterProducts(category) {
 
     // DENTRO de la categoría, volvemos a separar TOP del RESTO para mantener el orden visual
     let topInCat = filtered.filter(p => {
-        const r = parseInt(p.reviews);
+        const r = parseInt(p.orden);
         return !isNaN(r) && r >= 1 && r <= 10;
-    }).sort((a,b) => parseInt(a.reviews) - parseInt(b.reviews));
+    }).sort((a,b) => parseInt(a.orden) - parseInt(b.orden));
 
     let restInCat = filtered.filter(p => {
-        const r = parseInt(p.reviews);
+        const r = parseInt(p.orden);
         return isNaN(r) || r > 10;
     });
 
@@ -532,8 +545,18 @@ function selectUserType(t) {
 }
 
 function validateStep1() {
-    if(!document.getElementById('checkoutName').value || !document.getElementById('checkoutEmail').value) return alert('Datos requeridos');
-    goToStep(2);
+  const name    = document.getElementById('checkoutName').value.trim();
+  const email   = document.getElementById('checkoutEmail').value.trim();
+  const address = document.getElementById('checkoutAddress').value.trim();
+  const city    = document.getElementById('checkoutCity').value.trim();
+  const zip     = document.getElementById('checkoutZip').value.trim();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!name)    return alert('Escribe tu nombre completo');
+  if (!emailOk) return alert('El email no tiene un formato válido');
+  if (!address) return alert('Escribe tu dirección');
+  if (!city)    return alert('Escribe tu ciudad');
+  if (!zip)     return alert('Escribe el código postal');
+  goToStep(2);
 }
 
 function renderPaymentStep() {
@@ -589,7 +612,29 @@ function toggleCart() {
   if(s.classList.contains('hidden')){s.classList.remove('hidden');s.classList.add('flex');o.classList.remove('hidden');document.body.style.overflow='hidden'}
   else{s.classList.add('hidden');s.classList.remove('flex');o.classList.add('hidden');document.body.style.overflow=''}
 }
+// ==========================================
+// CARRUSEL NOSOTROS
+// ==========================================
+(function() {
+  const track = document.querySelector('.carousel-track');
+  const dots  = document.querySelectorAll('.carousel-dot');
+  if (!track) return;
+  const total = track.children.length;
+  let current = 0;
+
+  function goTo(index) {
+    current = index;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    dots.forEach((d, i) => {
+      d.style.opacity = i === current ? '1' : '0.4';
+    });
+  }
+
+  setInterval(() => goTo((current + 1) % total), 3500);
+})();
+
 function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
 </script>
 </body>
 </html>
+
