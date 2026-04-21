@@ -396,38 +396,35 @@ async function fetchProducts() {
     const res = await fetch(GITHUB_DATA_URL);
     const data = await res.json();
     
-    // Aseguramos que sea un array
-    if (!Array.isArray(data)) throw new Error("Formato incorrecto");
-    products = data;
+    // 1. Filtramos por VISIBILIDAD (Ignoramos los que digan "NO")
+    let visibleProducts = data.filter(p => {
+        // Si visible es "NO", lo quitamos. Si es "SI" o está vacío, lo mantenemos.
+        // Uso trim() y toUpperCase() para evitar errores por mayúsculas/minúsculas
+        return p.visible && p.visible.trim().toUpperCase() !== 'NO';
+    });
 
-    // ==========================================
-    // LÓGICA DE PORTADA (TOP 10)
-    // ==========================================
-    // 1. Buscamos productos marcados del 1 al 10 en 'orden'
+    // Aseguramos que sea un array
+    if (!Array.isArray(visibleProducts)) throw new Error("Formato incorrecto");
+    products = visibleProducts;
+
+    // 2. LÓGICA DE PORTADA (TOP 10) sobre los productos VISIBLES
     let topProducts = products.filter(p => {
       const orden = parseInt(p.orden);
       return !isNaN(orden) && orden >= 1 && orden <= 10;
     });
-
-    // 2. Ordenamos estos destacados por su número (1, 2, 3...)
     topProducts.sort((a, b) => parseInt(a.orden) - parseInt(b.orden));
 
-    // 3. Buscamos el resto de productos (los que no son 1-10)
     let otherProducts = products.filter(p => {
       const orden = parseInt(p.orden);
       return isNaN(orden) || orden > 10;
     });
 
-    // 4. Combinamos: Primero los Top, luego el resto
-    const finalOrder = [...topProducts, ...otherProducts];
-
-    // 5. Renderizamos todo el catálogo ordenado así
-    renderProducts(finalOrder);
+    // Combinamos y Renderizamos
+    renderProducts([...topProducts, ...otherProducts]);
 
   } catch (e) {
     console.error(e);
-    // Fallback por si falla la carga
-    products = [{ id:1, name: "Demo", price:10, img:"https://picsum.photos/200", emoji:"🛍️", category:"test", desc:"Demo", reviews: 0 }];
+    products = [{ id:1, name: "Demo", price:10, img:"https://picsum.photos/200", emoji:"🛍️", category:"test", desc:"Demo", reviews: 0, stock:"SI", visible:"SI" }];
     renderProducts(products);
   }
 }
