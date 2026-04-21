@@ -184,7 +184,62 @@ tailwind.config = {
     </div>
   </div>
 </section>
+<!-- SECCIÓN FAQ -->
+<section id="faq" class="py-16 md:py-24 bg-white/60">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <span class="text-xs font-semibold uppercase tracking-widest text-brand-400 mb-3 block">Preguntas Frecuentes</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-brown-600 mb-4">¿Tienes dudas? 🤔</h2>
+    </div>
+    
+    <div class="flex flex-col gap-3" id="faqContainer">
+      <!-- Pregunta 1 -->
+      <div class="faq-item bg-white rounded-2xl border border-brand-100/50 overflow-hidden shadow-sm">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors">
+          <span class="text-sm font-semibold text-brown-500">¿Cuánto tarda el envío?</span>
+          <span class="iconify w-5 h-5 text-brown-300 transition-transform duration-300 faq-icon" data-icon="lucide:chevron-down"></span>
+        </button>
+        <div class="faq-answer hidden px-5 pb-5">
+          <p class="text-sm text-brown-300 leading-relaxed">Nuestros envíos estándar tardan entre 3 a 5 días laborables en España y 7 a 14 días al resto de Europa. Para envíos urgentes, consúltanos.</p>
+        </div>
+      </div>
 
+      <!-- Pregunta 2 -->
+      <div class="faq-item bg-white rounded-2xl border border-brand-100/50 overflow-hidden shadow-sm">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors">
+          <span class="text-sm font-semibold text-brown-500">¿Puedo personalizar mi pedido?</span>
+          <span class="iconify w-5 h-5 text-brown-300 transition-transform duration-300 faq-icon" data-icon="lucide:chevron-down"></span>
+        </button>
+        <div class="faq-answer hidden px-5 pb-5">
+          <p class="text-sm text-brown-300 leading-relaxed">¡Por supuesto! Muchos de nuestros amigurumis y pixel arts se pueden personalizar con colores o nombres específicos. Escríbenos un email antes de realizar tu pedido.</p>
+        </div>
+      </div>
+
+      <!-- Pregunta 3 -->
+      <div class="faq-item bg-white rounded-2xl border border-brand-100/50 overflow-hidden shadow-sm">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors">
+          <span class="text-sm font-semibold text-brown-500">¿Métodos de pago disponibles?</span>
+          <span class="iconify w-5 h-5 text-brown-300 transition-transform duration-300 faq-icon" data-icon="lucide:chevron-down"></span>
+        </button>
+        <div class="faq-answer hidden px-5 pb-5">
+          <p class="text-sm text-brown-300 leading-relaxed">Aceptamos pagos seguros mediante Tarjeta de Crédito/Débito (a través de Stripe) y PayPal. Todas las transacciones son encriptadas y seguras.</p>
+        </div>
+      </div>
+
+      <!-- Pregunta 4 -->
+      <div class="faq-item bg-white rounded-2xl border border-brand-100/50 overflow-hidden shadow-sm">
+        <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors">
+          <span class="text-sm font-semibold text-brown-500">¿Política de devoluciones?</span>
+          <span class="iconify w-5 h-5 text-brown-300 transition-transform duration-300 faq-icon" data-icon="lucide:chevron-down"></span>
+        </button>
+        <div class="faq-answer hidden px-5 pb-5">
+          <p class="text-sm text-brown-300 leading-relaxed">Tienes 30 días desde la recepción del pedido para devolverlo si no estás satisfecho. El producto debe estar en su estado original. Contacta con nosotros para iniciar el proceso.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+  
 <!-- FOOTER / CONTACTO -->
 <footer id="contacto" class="bg-brown-600 text-brown-100 pt-16 pb-8">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -611,6 +666,22 @@ function toggleCart() {
   const s = document.getElementById('cartSidebar'); const o = document.getElementById('cartOverlay');
   if(s.classList.contains('hidden')){s.classList.remove('hidden');s.classList.add('flex');o.classList.remove('hidden');document.body.style.overflow='hidden'}
   else{s.classList.add('hidden');s.classList.remove('flex');o.classList.add('hidden');document.body.style.overflow=''}
+}
+// Función para abrir/cerrar preguntas FAQ
+function toggleFaq(button) {
+  const answer = button.nextElementSibling; // El div de la respuesta
+  const icon = button.querySelector('.faq-icon'); // La flecha
+  const isOpen = !answer.classList.contains('hidden'); // ¿Está ya abierto?
+
+  // Cerrar todas las demás (opcional, para que solo haya una abierta)
+  document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
+  document.querySelectorAll('.faq-icon').forEach(i => i.style.transform = '');
+
+  // Si estaba cerrado, abrirlo
+  if (!isOpen) {
+    answer.classList.remove('hidden');
+    icon.style.transform = 'rotate(180deg)'; // Girar la flecha
+  }
 }
 // ==========================================
 // CARRUSEL NOSOTROS
