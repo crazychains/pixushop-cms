@@ -597,7 +597,7 @@ function updateCartUI() {
     list.innerHTML = cart.map(i => `
       <div class="flex gap-4 mb-4 border-b border-gray-100 pb-2">
         <img src="${i.img.includes(',')?i.img.split(',')[0]:i.img}" class="w-16 h-16 rounded-lg object-cover">
-        <div class="flex-1"><div class="font-bold text-gray-700 text-sm">${i.name}</div><div class="text-sm text-gray-500">${formatMoney(i.price)}</div></div>
+        <div class="flex-1"><div class="font-bold text-gray-700 text-sm">${i.name}</div><div class="text-sm text-gray-500">${formatMoney(i.price)} €</div></div>
         <div class="flex items-center gap-2"><button onclick="updateQty(${i.id},-1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs">-</button><span>${i.qty}</span><button onclick="updateQty(${i.id},1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs">+</button></div>
       </div>
     `).join('');
