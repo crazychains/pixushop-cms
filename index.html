@@ -434,19 +434,48 @@ async function fetchProducts() {
 
 function renderProducts(list) {
   const grid = document.getElementById('productsGrid');
+  
+  if (list.length === 0) {
+    grid.innerHTML = '<p class="col-span-4 text-center text-brown-300 py-10">No hay productos disponibles en este momento.</p>';
+    return;
+  }
+
   grid.innerHTML = list.map((p) => {
-    const mainImg = p.img.includes(',') ? p.img.split(',')[0].trim() : p.img;
+    // Lógica de imagen principal
+    const mainImg = p.img && p.img.includes(',') ? p.img.split(',')[0].trim() : p.img;
+
+    // LÓGICA DE STOCK
+    let btnState = '';
+    let btnText = '<span class="iconify w-5 h-5" data-icon="lucide:plus"></span>'; // Icono por defecto (+)
+    
+    // Comprobamos si stock existe Y es "NO"
+    if (p.stock && p.stock.trim().toUpperCase() === 'NO') {
+        // Botón desactivado
+        btnState = 'opacity-50 cursor-not-allowed grayscale hover:bg-white/90';
+        // Cambiamos el texto por "Fuera de stock"
+        btnText = '<span class="text-[10px] font-bold text-red-400 uppercase tracking-tight">Fuera de stock</span>';
+    }
+
     return `
-    <div class="product-card bg-white rounded-2xl border border-brand-100/50 overflow-hidden cursor-pointer group" onclick="openProductModal(${p.id})">
+    <div class="product-card bg-white rounded-2xl border border-brand-100/50 overflow-hidden group" onclick="${p.stock && p.stock.trim().toUpperCase() === 'NO' ? '' : `openProductModal(${p.id})`}">
       <div class="relative overflow-hidden">
         <img src="${mainImg}" alt="${p.name}" class="product-img w-full aspect-square object-cover">
         ${p.badge ? `<span class="badge-new absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase">${p.badge}</span>` : ''}
-        <button onclick="event.stopPropagation(); addToCart(${p.id})" class="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-brand-500 hover:text-white text-brown-400"><span class="iconify w-5 h-5" data-icon="lucide:plus"></span></button>
+        
+        <!-- BOTÓN DE AÑADIR (CAMBIA SEGÚN STOCK) -->
+        <button onclick="event.stopPropagation(); addToCart(${p.id})" class="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md transition-all hover:bg-brand-500 hover:text-white text-brown-400 ${btnState}">
+          ${btnText}
+        </button>
       </div>
       <div class="p-3 md:p-4">
-        <div class="flex items-center gap-1 mb-1"><span class="text-base">${p.emoji || '🛍️'}</span><span class="text-[10px] text-brown-200 capitalize">${p.category || 'General'}</span></div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-base">${p.emoji || '🛍️'}</span>
+          <span class="text-[10px] text-brown-200 capitalize">${p.category || 'General'}</span>
+        </div>
         <h3 class="text-sm font-bold text-brown-600 mb-1.5 group-hover:text-brand-500 transition-colors">${p.name}</h3>
-        <div class="flex items-baseline gap-2"><span class="text-base font-bold text-brand-500">${formatMoney(p.price)}</span></div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-base font-bold ${p.stock && p.stock.trim().toUpperCase() === 'NO' ? 'text-gray-400' : 'text-brand-500'}">${formatMoney(p.price)}</span>
+        </div>
       </div>
     </div>
   `}).join('');
