@@ -416,11 +416,12 @@ async function fetchProducts() {
 
     topProducts.sort((a, b) => parseInt(a.orden) - parseInt(b.orden));
 
-    // 3. El resto (los que no tienen orden definido, o > 10)
-    let otherProducts = products.filter(p => {
-      const val = p.orden;
-      return val === undefined || val === null || val === "" || isNaN(val) || val > 10;
-    });
+    // 3. El resto (los que no tienen orden, o que tienen el código "ocultar" 99)
+  let otherProducts = products.filter(p => {
+  const val = p.orden;
+  // Filtramos: Si está vacío, si es texto, o si explícitamente es 99
+  return val === undefined || val === null || val === "" || isNaN(val) || val === 99;
+});
 
     // 4. Combinamos y Renderizamos
     const finalOrder = [...topProducts, ...otherProducts];
