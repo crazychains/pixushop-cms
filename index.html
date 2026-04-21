@@ -389,17 +389,15 @@ function loadStripeScript(pk) {
 }
 
 // ==========================================
-// FETCH & RENDER
+// FETCH & RENDER (CORREGIDO)
 // ==========================================
 async function fetchProducts() {
   try {
     const res = await fetch(GITHUB_DATA_URL);
     const data = await res.json();
     
-    // 1. Filtramos por VISIBILIDAD (Ignoramos los que digan "NO")
+    // 1. Filtramos por VISIBILIDAD
     let visibleProducts = data.filter(p => {
-        // Si visible es "NO", lo quitamos. Si es "SI" o está vacío, lo mantenemos.
-        // Uso trim() y toUpperCase() para evitar errores por mayúsculas/minúsculas
         return p.visible && p.visible.trim().toUpperCase() !== 'NO';
     });
 
@@ -407,24 +405,30 @@ async function fetchProducts() {
     if (!Array.isArray(visibleProducts)) throw new Error("Formato incorrecto");
     products = visibleProducts;
 
-    // 2. LÓGICA DE PORTADA (TOP 10) sobre los productos VISIBLES
+    // 2. LÓGICA DE PORTADA (TOP 10)
+    // CORRECCIÓN: Buscamos EXPLÍCITAMENTE en la columna 'orden' para no confundir con 'reviews'
     let topProducts = products.filter(p => {
-      const orden = parseInt(p.orden);
-      return !isNaN(orden) && orden >= 1 && orden <= 10;
+      // Comprobamos si la propiedad 'orden' existe y es un número entre 1 y 10
+      // Si 'orden' no existe, isNaN devuelve true y se filtra
+      const val = p.orden; 
+      return val !== undefined && val !== null && val !== "" && !isNaN(val) && val >= 1 && val <= 10;
     });
+
     topProducts.sort((a, b) => parseInt(a.orden) - parseInt(b.orden));
 
+    // 3. El resto (los que no tienen orden definido, o > 10)
     let otherProducts = products.filter(p => {
-      const orden = parseInt(p.orden);
-      return isNaN(orden) || orden > 10;
+      const val = p.orden;
+      return val === undefined || val === null || val === "" || isNaN(val) || val > 10;
     });
 
-    // Combinamos y Renderizamos
-    renderProducts([...topProducts, ...otherProducts]);
+    // 4. Combinamos y Renderizamos
+    const finalOrder = [...topProducts, ...otherProducts];
+    renderProducts(finalOrder);
 
   } catch (e) {
     console.error(e);
-    products = [{ id:1, name: "Demo", price:10, img:"https://picsum.photos/200", emoji:"🛍️", category:"test", desc:"Demo", reviews: 0, stock:"SI", visible:"SI" }];
+    products = [{ id:1, name: "Demo", price:10, img:"https://picsum.photos/200", emoji:"🛍️", category:"test", desc:"Demo", stock:"SI", visible:"SI" }];
     renderProducts(products);
   }
 }
@@ -438,29 +442,33 @@ function renderProducts(list) {
   }
 
   grid.innerHTML = list.map((p) => {
-    // Lógica de imagen principal
     const mainImg = p.img && p.img.includes(',') ? p.img.split(',')[0].trim() : p.img;
 
     // LÓGICA DE STOCK
-    let btnState = '';
-    let btnText = '<span class="iconify w-5 h-5" data-icon="lucide:plus"></span>'; // Icono por defecto (+)
-    
-    // Comprobamos si stock existe Y es "NO"
+    let isOutOfStock = false;
+    let btnState = 'opacity-0 group-hover:opacity-100'; // Clases por defecto (visible al hover)
+    let btnText = '<span class="iconify w-5 h-5" data-icon="lucide:plus"></span>'; // Icono por defecto
+    let clickAction = `addToCart(${p.id})`;
+    let cardClick = `openProductModal(${p.id})`;
+
+    // Si stock es "NO"
     if (p.stock && p.stock.trim().toUpperCase() === 'NO') {
-        // Botón desactivado
-        btnState = 'opacity-50 cursor-not-allowed grayscale hover:bg-white/90';
-        // Cambiamos el texto por "Fuera de stock"
+        isOutOfStock = true;
+        // Clases: Siempre visible (quitamos opacity-0), sin cursor, gris
+        btnState = 'opacity-100 cursor-not-allowed grayscale hover:bg-white/90 bg-gray-100';
         btnText = '<span class="text-[10px] font-bold text-red-400 uppercase tracking-tight">Fuera de stock</span>';
+        // Quitamos el onclick del contenedor padre para que no abra el modal
+        cardClick = ''; 
     }
 
     return `
-    <div class="product-card bg-white rounded-2xl border border-brand-100/50 overflow-hidden group" onclick="${p.stock && p.stock.trim().toUpperCase() === 'NO' ? '' : `openProductModal(${p.id})`}">
+    <div class="product-card bg-white rounded-2xl border border-brand-100/50 overflow-hidden ${isOutOfStock ? '' : 'cursor-pointer'} group" ${isOutOfStock ? '' : `onclick="${cardClick}"`}>
       <div class="relative overflow-hidden">
         <img src="${mainImg}" alt="${p.name}" class="product-img w-full aspect-square object-cover">
         ${p.badge ? `<span class="badge-new absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase">${p.badge}</span>` : ''}
         
-        <!-- BOTÓN DE AÑADIR (CAMBIA SEGÚN STOCK) -->
-        <button onclick="event.stopPropagation(); addToCart(${p.id})" class="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md transition-all hover:bg-brand-500 hover:text-white text-brown-400 ${btnState}">
+        <!-- BOTÓN DE AÑADIR -->
+        <button onclick="event.stopPropagation(); ${clickAction}" ${isOutOfStock ? 'disabled' : ''} class="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md transition-all hover:bg-brand-500 hover:text-white text-brown-400 ${btnState}">
           ${btnText}
         </button>
       </div>
@@ -469,9 +477,9 @@ function renderProducts(list) {
           <span class="text-base">${p.emoji || '🛍️'}</span>
           <span class="text-[10px] text-brown-200 capitalize">${p.category || 'General'}</span>
         </div>
-        <h3 class="text-sm font-bold text-brown-600 mb-1.5 group-hover:text-brand-500 transition-colors">${p.name}</h3>
+        <h3 class="text-sm font-bold ${isOutOfStock ? 'text-gray-400' : 'text-brown-600'} mb-1.5 group-hover:text-brand-500 transition-colors">${p.name}</h3>
         <div class="flex items-baseline gap-2">
-          <span class="text-base font-bold ${p.stock && p.stock.trim().toUpperCase() === 'NO' ? 'text-gray-400' : 'text-brand-500'}">${formatMoney(p.price)}</span>
+          <span class="text-base font-bold ${isOutOfStock ? 'text-gray-400' : 'text-brand-500'}">${formatMoney(p.price)}</span>
         </div>
       </div>
     </div>
@@ -509,8 +517,18 @@ function filterProducts(category, btn) {
 // ==========================================
 // CART & MODALS
 // ==========================================
+// FUNCIÓN ADD TO CART (PROTEGIDA)
 function addToCart(id) {
   const p = products.find(x => x.id === id);
+  
+  // DOBLE COMPROBACIÓN DE SEGURIDAD ANTES DE AÑADIR
+  // Aunque el botón esté gris, esto evita trampas en la consola del navegador
+  if (!p) return;
+  if (p.stock && p.stock.trim().toUpperCase() === 'NO') {
+    showToast('Este producto está agotado', 'error');
+    return;
+  }
+
   const existing = cart.find(x => x.id === id);
   if (existing) existing.qty++; else cart.push({...p, qty:1});
   updateCartUI(); saveCart(); showToast('Añadido al carrito');
