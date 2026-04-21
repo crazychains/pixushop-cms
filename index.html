@@ -323,7 +323,12 @@ tailwind.config = {
       <div class="bg-gray-50 p-4 rounded-xl border border-gray-200"><p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p><div id="checkoutSummaryList" class="text-sm space-y-1 mb-2 text-gray-700"></div><div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800 text-lg"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div><div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div></div>
       <div class="space-y-3">
         <button onclick="selectPaymentMethod('stripe')" id="btnStripe" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all"><div class="flex items-center gap-3"><span class="text-2xl">💳</span><span class="font-semibold text-gray-700">Tarjeta Crédito / Débito</span></div></button>
-        <button onclick="selectPaymentMethod('paypal')" id="btnPaypal" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all"><div class="flex items-center gap-3"><span class="text-2xl">🅿️</span><span class="font-semibold text-gray-700">PayPal</span></div></button>
+        <button onclick="selectPaymentMethod('paypal')" id="btnPaypal" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all">
+          <div class="flex items-center gap-3">
+    <!-- LOGO OFICIAL DE PAYPAL -->
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/120px-PayPal.svg.png" alt="PayPal" class="h-6 w-auto object-contain">
+          </div>
+        </button>
       </div>
       <div id="stripeContainer" class="hidden p-4 border border-gray-200 rounded-xl bg-white"><div id="stripe-card-element"></div><button id="stripePayBtn" class="w-full mt-4 bg-black text-white font-bold py-3 rounded-lg hover:opacity-90">Pagar <span id="stripeBtnAmount"></span></button></div>
       <div id="paypalContainer" class="hidden text-center p-4 border border-gray-200 rounded-xl"><p class="text-sm text-gray-500 mb-4">Serás redirigido a PayPal.</p><div id="paypal-button-container"></div></div>
