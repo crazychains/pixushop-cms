@@ -530,7 +530,7 @@ function renderProducts(list) {
         </div>
         <h3 class="text-sm font-bold ${isOutOfStock ? 'text-gray-400' : 'text-brown-600'} mb-1.5 group-hover:text-brand-500 transition-colors">${p.name}</h3>
         <div class="flex items-baseline gap-2">
-          <span class="text-base font-bold ${isOutOfStock ? 'text-gray-400' : 'text-brand-500'}">${formatMoney(p.price)}</span>
+          <span class="text-base font-bold ${isOutOfStock ? 'text-gray-400' : 'text-brand-500'}">${formatMoney(p.price)} €</span>
         </div>
       </div>
     </div>
