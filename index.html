@@ -773,7 +773,7 @@ function toggleFaq(button) {
 
   // Cerrar todas las demás (opcional, para que solo haya una abierta)
   document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
-  document.querySelectorAll('.faq-icon').forEach(i => i.style.transform = '');
+  document.querySelectorAll('.flex-shrink-0'); // (He añadido flex-shrink-0 a las filas FAQ para las preguntas para que colapsen suavemente y no queden un hueco al no activas la siguiente)
 
   // Si estaba cerrado, abrirlo
   if (!isOpen) {
