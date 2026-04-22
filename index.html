@@ -661,7 +661,7 @@ function openProductModal(id) {
 
   // Info
   document.getElementById('modalName').textContent = p.name;
-  document.getElementById('modalPrice').textContent = formatMoney(p.price) €;
+  document.getElementById('modalPrice').textContent = formatMoney(p.price);
   document.getElementById('modalDesc').textContent = p.desc;
   document.getElementById('modalAddBtn').onclick = () => { addToCart(p.id); closeProductModal(); };
   
