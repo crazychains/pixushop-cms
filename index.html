@@ -64,6 +64,11 @@ tailwind.config = {
   background-size: 200% 100%;
   animation: 1.2s shimmer linear infinite;
 }
+/* ESTILOS PARA PRECIOS DE ENVÍO */
+.price-free { color: #10B981; text-decoration: line-through; } /* Texto tachado para precio original */
+.shipping-active { color: #10B981; font-weight: bold; } /* Texto de envío en rojo (ej: +6,99€) */
+.price-regular { color: #10B981; } /* Texto de envío normal */
+.price-free-text { color: #9CA3AF; } /* Precio tachado si hay descuento */
 </style>
 </head>
 <body class="text-brown-600 antialiased">
@@ -367,13 +372,33 @@ tailwind.config = {
       <div class="flex justify-between"><button onclick="goToStep(0)" class="text-sm text-gray-500 hover:text-brand-500">Volver</button><button onclick="validateStep1()" class="bg-brand-500 text-white px-6 py-3 rounded-xl hover:bg-brand-600 transition-colors">Continuar</button></div>
     </div>
 
-    <!-- STEP 2: PAGO -->
-    <div id="step2" class="hidden space-y-6"><h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Método de Pago</h4>
+<!-- STEP 2: PAGO -->
+<div id="step2" class="hidden space-y-6">
+  <h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Método de Pago</h4>
       <div class="bg-gray-50 p-4 rounded-xl border border-gray-200"><p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p><div id="checkoutSummaryList" class="text-sm space-y-1 mb-2 text-gray-700"></div><div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800 text-lg"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div><div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div></div>
       <div class="space-y-3">
         <button onclick="selectPaymentMethod('stripe')" id="btnStripe" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all"><div class="flex items-center gap-3"><span class="text-2xl">💳</span><span class="font-semibold text-gray-700">Tarjeta Crédito / Débito</span></div></button>
         <button onclick="selectPaymentMethod('paypal')" id="btnPaypal" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all">
           <div class="flex items-center gap-3">
+    
+    <!-- AQUÍ ESTÁ EL CAMBIO: DETALLE PRECIOS -->
+    <div class="border-t border-gray-200 pt-2 space-y-2">
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-500">Subtotal</span>
+            <span id="checkoutSubtotal" class="text-sm font-semibold text-brown-500">0,00 €</span>
+        </div>
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-500">Gastos de envío</span>
+            <span id="checkoutShipping" class="text-sm font-semibold text-brown-500">0,00 €</span>
+        </div>
+        <div class="flex justify-between font-bold text-gray-800 text-lg">
+            <span>Total a pagar</span>
+            <span id="checkoutTotalAmount">0,00 €</span>
+        </div>
+        <div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div>
+    </div>
+
+            
     <!-- LOGO OFICIAL DE PAYPAL -->
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/120px-PayPal.svg.png" alt="PayPal" class="h-6 w-auto object-contain">
           </div>
@@ -718,15 +743,43 @@ function validateStep1() {
 function renderPaymentStep() {
     const list = document.getElementById('checkoutSummaryList');
     list.innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${formatMoney(i.price*i.qty*(isDiscountActive?0.9:1))}</span></div>`).join('');
-    const total = getTotal(true);
+
+    // Cálculos de precios
+    const subtotal = cart.reduce((a,b)=>a+(b.price*b.qty),0);
+    
+    // Calcular Envío
+    const shippingCost = appConfig.payment && appConfig.payment.shipping_cost ? parseFloat(appConfig.payment.shipping_cost) : 0;
+    let shippingPrice = 0;
+
+    // Regla de envío Gratis
+    if (subtotal >= 40) {
+        shippingPrice = 0; // Gratis
+        document.getElementById('checkoutShipping').textContent = "¡Gratis! 📦";
+        document.getElementById('checkoutShipping').className = "text-sm font-semibold text-green-600";
+    } else {
+        shippingPrice = shippingCost;
+        document.getElementById('checkoutShipping').textContent = formatMoney(shippingPrice);
+        document.getElementById('checkout').className = "text-sm font-semibold text-brown-500";
+    }
+
+    const total = subtotal + (isDiscountActive ? subtotal * 0.1 : 0) + shippingPrice;
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
     document.getElementById('stripeBtnAmount').textContent = formatMoney(total);
-    
+
+    // Manejo visual del precio del botón de pagar
+    if(shippingPrice > 0 && subtotal < 35) {
+         // Si hay coste de envío, le ponemos el color rojo/advertencia al botón
+         document.getElementById('stripePayBtn').classList.add('bg-brand-500'); 
+    } else {
+         // Si es gratis, botón normal
+         document.getElementById('stripePayBtn').classList.remove('bg-brand-500'); 
+    }
+
     const disc = document.getElementById('discountDisplay');
     if(isDiscountActive) { disc.classList.remove('hidden'); disc.textContent = "Descuento de registro: -10%"; } else { disc.classList.add('hidden'); }
     
-    document.getElementById('stripeContainer').classList.add('hidden'); document.getElementById('paypalContainer').classList.add('hidden');
-    document.getElementById('btnStripe').classList.remove('border-brand-500','bg-brand-50'); document.getElementById('btnPaypal').classList.remove('border-brand-500','bg-brand-50');
+    document.getElementById('stripeContainer').classList.add('hidden');
+    document.getElementById('shippingInfoBanner')...> (resto de la lógica de botones ...)
 }
 
 function selectPaymentMethod(m) {
