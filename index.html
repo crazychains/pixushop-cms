@@ -466,7 +466,10 @@ function loadStripeScript(pk) {
 async function fetchProducts() {
   try {
     const res = await fetch(GITHUB_DATA_URL);
-    const data = await res.json();
+    let data;
+    // Intentar parsear JSON normal
+    try { data = await res.json(); } 
+    catch (e) { data = res.text().trim().replace(/data:\s*['{.data.*/\s*''}/g;
     
     // 1. Filtramos por VISIBILIDAD
     let visibleProducts = data.filter(p => {
