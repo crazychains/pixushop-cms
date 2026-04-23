@@ -355,7 +355,7 @@ tailwind.config = {
   <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50"><h3 class="text-xl font-bold text-gray-800">Finalizar Compra</h3><button onclick="closeCheckout()" class="p-2 hover:bg-gray-200 rounded-full"><span class="iconify w-6 h-6 text-gray-500" data-icon="lucide:x"></span></button></div>
   <div class="flex-1 overflow-y-auto p-6 md:p-8" id="checkoutBody">
     
-    <!-- STEP 0: USUARIO -->
+  <!-- STEP 0: USUARIO -->
     <div id="step0" class="space-y-6"><h4 class="text-lg font-bold text-gray-700 text-center">¿Cómo quieres continuar?</h4>
       <div class="grid md:grid-cols-2 gap-4">
         <button onclick="selectUserType('guest')" id="btnGuest" class="p-6 border-2 border-gray-200 rounded-xl hover:border-brand-300 hover:bg-brand-50 transition-all text-left"><div class="flex items-center gap-3 mb-2"><span class="text-2xl">👤</span><span class="font-bold text-gray-800">Como Invitado</span></div><p class="text-sm text-gray-500">Compra rápido sin registrarte.</p></button>
@@ -363,7 +363,7 @@ tailwind.config = {
       </div>
     </div>
 
-    <!-- STEP 1: DATOS -->
+  <!-- STEP 1: DATOS -->
     <div id="step1" class="hidden space-y-6"><h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">1</span> Datos de Envío</h4>
       <div class="grid md:grid-cols-2 gap-4">
         <input type="text" id="checkoutName" placeholder="Nombre completo" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
@@ -375,7 +375,7 @@ tailwind.config = {
       <div class="flex justify-between"><button onclick="goToStep(0)" class="text-sm text-gray-500 hover:text-brand-500">Volver</button><button onclick="validateStep1()" class="bg-brand-500 text-white px-6 py-3 rounded-xl hover:bg-brand-600 transition-colors">Continuar</button></div>
     </div>
 
-<!-- STEP 2: PAGO -->
+  <!-- STEP 2: PAGO -->
 <div id="step2" class="hidden space-y-6">
   <h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Método de Pago</h4>
       <div class="bg-gray-50 p-4 rounded-xl border border-gray-200"><p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p><div id="checkoutSummaryList" class="text-sm space-y-1 mb-2 text-gray-700"></div><div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800 text-lg"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div><div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div></div>
@@ -412,7 +412,7 @@ tailwind.config = {
       <button onclick="goToStep(1)" class="w-full text-center text-sm text-gray-500 hover:text-brand-500 underline">Volver</button>
     </div>
 
-    <!-- STEP 3: CONFIRMACIÓN -->
+  <!-- STEP 3: CONFIRMACIÓN -->
     <div id="step3" class="hidden text-center py-10"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✅</div><h3 class="text-2xl font-bold text-gray-800 mb-2">¡Pedido Confirmado!</h3><p class="text-gray-500 mb-6">Gracias por tu compra.</p><button onclick="closeCheckout()" class="bg-brand-500 text-white px-8 py-3 rounded-full font-semibold">Seguir Comprando</button></div>
   </div>
 </div>
@@ -511,7 +511,7 @@ async function fetchProducts() {
 
   } catch (e) {
     console.error(e);
-    products = [{ id:1, name:"Demo", price:10, img:"https://picsum.photos/200", emoji:"🛍️", category:"test", desc:"Demo", stock:"SI", visible:"SI", orden:1 }];
+    products = [{ id:999, name:"Demo", price:10, img:"https://picsum.photos/200", emoji:"🛍️", category:"test", desc:"Demo", stock:"SI", visible:"SI", orden:1 }];
     renderProducts(products);
   }
 }
