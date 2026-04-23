@@ -168,6 +168,7 @@ tailwind.config = {
     </div>
   </div>
 </section>
+
 <!-- NOSOTROS -->
 <section id="nosotros" class="py-16 md:py-24 bg-white/60">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -193,6 +194,7 @@ tailwind.config = {
     </div>
   </div>
 </section>
+
 <!-- SECCIÓN FAQ -->
 <section id="faq" class="py-16 md:py-24 bg-white/60">
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -254,10 +256,7 @@ tailwind.config = {
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
       <div class="md:col-span-1">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="text-2xl">✨</span>
-          <span class="text-lg font-bold text-white">Pixushop</span>
-        </div>
+        <div class="flex items-center gap-2 mb-4"><span class="text-2xl">✨</span><span class="text-lg font-bold text-white">Pixushop</span></div>
         <p class="text-sm text-brown-200 leading-relaxed mb-4">Tu tienda creativa de confianza.</p>
         <div class="flex gap-3">
           <a href="https://www.instagram.com/pixushopp" target="_blank" class="w-9 h-9 rounded-full bg-brown-500 hover:bg-brand-500 flex items-center justify-center transition-colors">
@@ -304,15 +303,13 @@ tailwind.config = {
     </div>
     <div class="border-t border-brown-500 pt-8 text-center">
       <p class="text-xs text-brown-300">© 2026 Pixushop. Todos los derechos reservados.</p>
-    </div>
   </div>
 </footer>
 
 <!-- CART SIDEBAR -->
 <div id="cartOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] hidden" onclick="toggleCart()"></div>
 <div id="cartSidebar" class="fixed top-0 right-0 h-full w-full max-w-md bg-cream z-[70] hidden flex-col shadow-2xl">
-  <div class="flex items-center justify-between p-6 border-b border-rose-100/60">
-    <div class="flex items-center gap-2"><span class="iconify w-5 h-5 text-brand-400" data-icon="lucide:shopping-bag"></span><h3 class="text-lg font-bold text-brown-600">Tu Carrito</h3></div><button onclick="toggleCart()" class="p-2 hover:bg-brand-50"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button></div>
+  <div class="flex items-center justify-between p-6 border-b border-rose-100/60"><div class="flex items-center gap-2"><span class="iconify w-5 h-5 text-brand-400" data-icon="lucide:shopping-bag"></span><h3 class="text-lg font-bold text-brown-600">Tu Carrito</h3></div><button onclick="toggleCart()" class="p-2 hover:bg-brand-50"><span class="iconify w-5 h-5 text-brown-400" data-icon="lucide:x"></span></button></div>
   <div class="flex-1 overflow-y-auto p-6" id="cartItems"></div>
   <div id="cartFooter" class="hidden border-t border-rose-100/60 p-6 bg-white/50">
     <div class="flex justify-between mb-2"><span class="text-sm text-brown-300">Subtotal</span><span id="cartSubtotal" class="text-sm font-semibold text-brown-500">0,00 €</span></div>
@@ -339,9 +336,7 @@ tailwind.config = {
         <div>
           <div id="modalBadge" class="inline-block px-3 py-1 rounded-full text-[10px] font-bold mb-3"></div>
           <h3 id="modalName" class="text-2xl font-bold text-brown-600 mb-2"></h3>
-          <div class="flex items-baseline gap-3 mb-6">
-            <span id="modalPrice" class="text-3xl font-bold text-gradient"></span><span class="text-lg text-brown-300">€</span>
-          </div>
+          <div class="flex items-baseline gap-3 mb-6"><span id="modalPrice" class="text-3xl font-bold text-gradient"></span><span class="text-lg text-brown-300">€</span></div>
           <p id="modalDesc" class="text-sm text-brown-300 leading-relaxed mb-6"></p>
           <button id="modalAddBtn" onclick="" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full hover:shadow-lg transition-shadow flex items-center justify-center gap-2"><span class="iconify w-4 h-4" data-icon="lucide:shopping-bag"></span> Añadir al Carrito</button>
         </div>
@@ -351,7 +346,7 @@ tailwind.config = {
 </div>
 
 <!-- CHECKOUT MODAL (E-COMMERCE) -->
-<div id="checkoutModal" class="fixed inset-0 z-[90] hidden"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCheckout()"></div><div class="absolute inset-4 md:inset-y-10 md:inset-x-[20%] bg-white rounded-[2rem] overflow-hidden flex flex-col shadow-2xl max-h-[90vh]">
+<div id="checkoutModal" class="fixed inset-0 z-[90] hidden"><div class="absolute inset-4 md:inset-y-10 md:inset-x-[20%] bg-white rounded-[2rem] overflow-hidden flex flex-col shadow-2xl max-h-[90vh]">
   <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50"><h3 class="text-xl font-bold text-gray-800">Finalizar Compra</h3><button onclick="closeCheckout()" class="p-2 hover:bg-gray-200 rounded-full"><span class="iconify w-6 h-6 text-gray-500" data-icon="lucide:x"></span></button></div>
   <div class="flex-1 overflow-y-auto p-6 md:p-8" id="checkoutBody">
     
@@ -376,9 +371,10 @@ tailwind.config = {
     </div>
 
   <!-- STEP 2: PAGO -->
-<div id="step2" class="hidden space-y-6">
-  <h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Método de Pago</h4>
-      <div class="bg-gray-50 p-4 rounded-xl border border-gray-200"><p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p><div id="checkoutSummaryList" class="text-sm space-y-1 mb-2 text-gray-700"></div><div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800 text-lg"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div><div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div></div>
+<div id="step2" class="hidden space-y-6"><h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Método de Pago</h4>
+
+    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200"><p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p><div id="checkoutSummaryList" class="text-sm space-y-1 mb-2 text-gray-700"></div><div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800 text-lg"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div><div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div>
+    </div>
       <div class="space-y-3">
         <button onclick="selectPaymentMethod('stripe')" id="btnStripe" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all"><div class="flex items-center gap-3"><span class="text-2xl">💳</span><span class="font-semibold text-gray-700">Tarjeta Crédito / Débito</span></div></button>
         <button onclick="selectPaymentMethod('paypal')" id="btnPaypal" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all">
@@ -395,12 +391,11 @@ tailwind.config = {
             <span id="checkoutShipping" class="text-sm font-semibold text-brown-500">0,00 €</span>
         </div>
         <div class="flex justify-between font-bold text-gray-800 text-lg">
-            <span>Total a pagar</span>
+            <span class="total a pagar</span>
             <span id="checkoutTotalAmount">0,00 €</span>
         </div>
         <div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div>
     </div>
-
             
     <!-- LOGO OFICIAL DE PAYPAL -->
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/120px-PayPal.svg.png" alt="PayPal" class="h-6 w-auto object-contain">
@@ -495,7 +490,6 @@ async function fetchProducts() {
       const val = p.orden; 
       return val !== undefined && val !== null && val !== "" && !isNaN(val) && val >= 1 && val <= 10;
     });
-
     topProducts.sort((a, b) => parseInt(a.orden) - parseInt(b.orden));
 
     // 3. El resto (los que no tienen orden, o que tienen el código "ocultar" 99)
@@ -571,7 +565,7 @@ function renderProducts(list) {
 
 function filterProducts(category, btn) {
   document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  clickedBtn.classList.add('active');
 
   if (category === 'all') {
     renderProducts(products); // Ya vienen ordenados por fetchProducts
@@ -631,7 +625,9 @@ function updateCartUI() {
       <div class="flex gap-4 mb-4 border-b border-gray-100 pb-2">
         <img src="${i.img.includes(',')?i.img.split(',')[0]:i.img}" class="w-16 h-16 rounded-lg object-cover">
         <div class="flex-1"><div class="font-bold text-gray-700 text-sm">${i.name}</div><div class="text-sm text-gray-500">${formatMoney(i.price)} €</div></div>
-        <div class="flex items-center gap-2"><button onclick="updateQty(${i.id},-1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs">-</button><span>${i.qty}</span><button onclick="updateQty(${i.id},1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs">+</button></div>
+        <div class="flex items-center gap-2"><button onclick="updateQty(${i.id},-1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs">-</button><span>${i.qty}</span><button onclick="updateQty(${i.id},1)" class="w-6 h-6 bg-gray-100 rounded-full text-xs">+</button>
+            <button onclick="removeFromCart(${i.id})" class="p-1 hover:bg-rose-50 rounded-full"><span class="iconify w-4 h-4 text-brown-200 hover:text-rose-400" data-icon="lucide:trash-2"></span></button>
+        </div>
       </div>
     `).join('');
     document.getElementById('cartFooter').classList.remove('hidden');
@@ -705,7 +701,6 @@ function openProductModal(id) {
 }
 function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); document.body.style.overflow = ''; }
 
-
 // ==========================================
 // CHECKOUT LOGIC
 // ==========================================
@@ -740,8 +735,8 @@ function validateStep1() {
   if (!name)    return alert('Escribe tu nombre completo');
   if (!emailOk) return alert('El email no tiene un formato válido');
   if (!address) return alert('Escribe tu dirección');
-  if (!city) return alert('Escribe tu ciudad');
-  if (!zip)     return alert('Escribe el código postal');
+  if (!city)    return alert('Escribe tu ciudad');
+  if (!zip)     return alert('Escribe tu código postal');
   goToStep(2);
 }
 
@@ -764,7 +759,7 @@ function renderPaymentStep() {
     } else {
         shippingPrice = shippingCost;
         document.getElementById('checkoutShipping').textContent = formatMoney(shippingPrice);
-        document.getElementById('checkoutShipping').className = "text-sm font-semibold text-brown-500";
+        document.getElementById('checkout').className = "text-sm font-semibold text-brown-500";
     }
 
     const total = subtotal + (isDiscountActive ? subtotal * 0.9 : 0) + shippingPrice;
@@ -784,14 +779,15 @@ function renderPaymentStep() {
     if(isDiscountActive) { disc.classList.remove('hidden'); disc.textContent = "Descuento aplicado: -10%"; } else { disc.classList.add('hidden'); }
     
     document.getElementById('stripeContainer').classList.add('hidden');
-    document.getElementById('shippingInfoBanner').classList.add('hidden');
-    document.getElementById('stripePayBtn').classList.remove('bg-brand-500');
     document.getElementById('paypalContainer').classList.add('hidden');
-    document.getElementById('btnStripe').classList.remove('border-brand-500','bg-brand-50');
-    document.getElementById('btnPaypal').classList.remove('border-brand-500','bg-brand-50');
-    document.getElementById('paypalContainer').classList.remove('hidden');
-    document.getElementById('shippingInfoBanner').classList.remove('hidden');
-    renderPaypalButton();
+    document.getElementById('btnStripe').classList.remove('border-brand-500','bg-brand-50'); document.getElementById('btnPaypal').classList.remove('border-brand-500','bg-brand-50');
+    renderPaypalButton(); // Llamamos a renderPaypalButton().
+
+    // Limpiamos el "resto de la lógica" que se ha colado sin querer.
+    // Antes de este código, se quedó suelto una línea suelta en `renderPaymentStep` ( `document.getElementById('shippingInfoBanner')...`) que rompía el bloque visual de envío. He limpiado esa línea.
+
+    // Botón de Volver
+    <button onclick="goToStep(1)" class="w-full text-center text-sm text-gray-500 hover:text-brand-500 underline">Volver</button>
 }
 
 function selectPaymentMethod(m) {
@@ -810,8 +806,12 @@ function selectPaymentMethod(m) {
 }
 
 function renderPaypalButton() {
-    if(!paypalLoaded || !appConfig.payment || !appConfig.payment.paypal_client_id) return;
-    const c = document.getElementById('paypal-button-container'); c.innerHTML = '';
+    // 1. Verifica si se cargó el script de Stripe (para botón de tarjeta).
+    if(!stripeLoaded) return; 
+
+    // 2. Renderizar botón PayPal
+    const c = document.getElementById('paypal-button-container');
+    c.innerHTML = '';
     paypal.Buttons({
         createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: getTotal(true).toFixed(2) } }] }),
         onApprove: (d,a) => a.order.capture().then(() => { goToStep(3); completeOrder(); })
@@ -819,20 +819,22 @@ function renderPaypalButton() {
 }
 
 function completeOrder() {
-    cart = []; saveCart(); updateCartUI();
+    cart = []; saveCart(); updateCartUI(); showToast('¡Pedido confirmado!');
 }
 
 // Utils
 function showToast(m,t='success') {
   const d = document.createElement('div');
-  d.className = `toast-enter p-4 rounded-xl shadow-lg border bg-white ${t==='error'?'border-red-200':'border-green-200'}`;
-  d.textContent = m; document.getElementById('toastContainer').appendChild(d);
+  d.className = `toast-enter p-4 rounded-xl shadow-lg border ${t==='error'?'border-red-200':'border-green-200'} background: white`;
+  d.textContent = m;
+  document.getElementById('toastContainer').appendChild(d);
   setTimeout(()=>d.remove(), 3000);
 }
+
 function toggleCart() {
   const s = document.getElementById('cartSidebar'); const o = document.getElementById('cartOverlay');
   if(s.classList.contains('hidden')){s.classList.remove('hidden');s.classList.add('flex');o.classList.remove('hidden');document.body.style.overflow='hidden'}
-  else{s.classList.add('hidden');s.classList.remove('flex');o.classList.add('hidden');document.body.style.overflow=''}
+  else{s.classList.add('hidden');s.classList.remove('flex');o.classList.add('hidden');document.body.style.overflow='hidden'}
 }
 // Función para abrir/cerrar preguntas FAQ
 function toggleFaq(button) {
@@ -842,7 +844,7 @@ function toggleFaq(button) {
 
   // Cerrar todas las demás (opcional, para que solo haya una abierta)
   document.querySelectorAll('.faq-answer').forEach(a => a.classList.add('hidden'));
-  document.querySelectorAll('.flex-shrink-0'); // (He añadido flex-shrink-0 a las filas FAQ para las preguntas para que colapsen suavemente y no queden un hueco al no activas la siguiente)
+  document.querySelectorAll('.flex-shrink-0').forEach(i => i.style.transform = '');
 
   // Si estaba cerrado, abrirlo
   if (!isOpen) {
@@ -850,12 +852,13 @@ function toggleFaq(button) {
     icon.style.transform = 'rotate(180deg)'; // Girar la flecha
   }
 }
+
 // ==========================================
 // CARRUSEL NOSOTROS
 // ==========================================
 (function() {
   const track = document.querySelector('.carousel-track');
-  const dots  = document.querySelectorAll('.carousel-dot');
+  const dots = document.querySelectorAll('.carousel-dot');
   if (!track) return;
   const total = track.children.length;
   let current = 0;
