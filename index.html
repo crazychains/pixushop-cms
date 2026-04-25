@@ -347,13 +347,8 @@ tailwind.config = {
   <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50"><h3 class="text-xl font-bold text-gray-800">Finalizar Compra</h3><button onclick="closeCheckout()" class="p-2 hover:bg-gray-200 rounded-full"><span class="iconify w-6 h-6 text-gray-500" data-icon="lucide:x"></span></button></div>
   <div class="flex-1 overflow-y-auto p-6 md:p-8" id="checkoutBody">
     
-    <!-- STEP 0: USUARIO -->
-    <div id="step0" class="space-y-6"><h4 class="text-lg font-bold text-gray-700 text-center">¿Cómo quieres continuar?</h4>
-      <div class="grid md:grid-cols-2 gap-4">
-        <button onclick="selectUserType('guest')" id="btnGuest" class="p-6 border-2 border-gray-200 rounded-xl hover:border-brand-300 hover:bg-brand-50 transition-all text-left"><div class="flex items-center gap-3 mb-2"><span class="text-2xl">👤</span><span class="font-bold text-gray-800">Como Invitado</span></div><p class="text-sm text-gray-500">Compra rápido sin registrarte.</p></button>
-        <button onclick="selectUserType('register')" id="btnRegister" class="p-6 border-2 border-gray-200 rounded-xl hover:border-brand-500 hover:bg-brand-50 transition-all text-left relative overflow-hidden group"><div class="absolute top-0 right-0 bg-rose-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">DTO</div><div class="flex items-center gap-3 mb-2"><span class="text-2xl">✨</span><span class="font-bold text-gray-800">Registrarme</span></div><p class="text-sm text-gray-500" id="discountMessage">Obtén beneficios exclusivos y descuentos.</p></button>
-      </div>
-    </div>
+    <!-- STEP 0: (eliminado, se salta directamente a datos) -->
+    <div id="step0" class="hidden"></div>
 
     <!-- STEP 1: DATOS -->
     <div id="step1" class="hidden space-y-6"><h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">1</span> Datos de Envío</h4>
@@ -364,23 +359,17 @@ tailwind.config = {
         <input type="text" id="checkoutCity" placeholder="Ciudad" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
         <input type="text" id="checkoutZip" placeholder="Código Postal" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-brand-500 outline-none">
       </div>
-      <div class="flex justify-between"><button onclick="goToStep(0)" class="text-sm text-gray-500 hover:text-brand-500">Volver</button><button onclick="validateStep1()" class="bg-brand-500 text-white px-6 py-3 rounded-xl hover:bg-brand-600 transition-colors">Continuar</button></div>
+      <div class="flex justify-end"><button onclick="validateStep1()" class="bg-brand-500 text-white px-6 py-3 rounded-xl hover:bg-brand-600 transition-colors">Continuar</button></div>
     </div>
 
     <!-- STEP 2: PAGO -->
-    <div id="step2" class="hidden space-y-6"><h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Método de Pago</h4>
-      <div class="bg-gray-50 p-4 rounded-xl border border-gray-200"><p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p><div id="checkoutSummaryList" class="text-sm space-y-1 mb-2 text-gray-700"></div><div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800 text-lg"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div><div id="discountDisplay" class="text-green-600 text-sm font-semibold text-right hidden">Descuento aplicado: -10%</div></div>
-      <div class="space-y-3">
-        <button onclick="selectPaymentMethod('stripe')" id="btnStripe" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all"><div class="flex items-center gap-3"><span class="text-2xl">💳</span><span class="font-semibold text-gray-700">Tarjeta Crédito / Débito</span></div></button>
-        <button onclick="selectPaymentMethod('paypal')" id="btnPaypal" class="w-full p-4 rounded-xl border-2 border-gray-200 hover:border-brand-200 bg-white flex items-center justify-between transition-all">
-          <div class="flex items-center gap-3">
-    <!-- LOGO OFICIAL DE PAYPAL -->
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/120px-PayPal.svg.png" alt="PayPal" class="h-6 w-auto object-contain">
-          </div>
-        </button>
+    <div id="step2" class="hidden space-y-6"><h4 class="text-lg font-bold text-gray-700 flex items-center gap-2"><span class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm">2</span> Pago</h4>
+      <div class="bg-gray-50 p-4 rounded-xl border border-gray-200"><p class="text-sm font-semibold text-gray-500 mb-2">Resumen</p><div id="checkoutSummaryList" class="text-sm space-y-1 mb-2 text-gray-700"></div><div class="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-800 text-lg"><span>Total</span><span id="checkoutTotalAmount">0,00 €</span></div></div>
+      <div class="text-center p-4 border border-gray-200 rounded-xl bg-white">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/120px-PayPal.svg.png" alt="PayPal" class="h-7 mx-auto mb-3 object-contain">
+        <p class="text-sm text-gray-500 mb-4">Paga de forma segura con PayPal o tarjeta.</p>
+        <div id="paypal-button-container"></div>
       </div>
-      <div id="stripeContainer" class="hidden p-4 border border-gray-200 rounded-xl bg-white"><div id="stripe-card-element"></div><button id="stripePayBtn" class="w-full mt-4 bg-black text-white font-bold py-3 rounded-lg hover:opacity-90">Pagar <span id="stripeBtnAmount"></span></button></div>
-      <div id="paypalContainer" class="hidden text-center p-4 border border-gray-200 rounded-xl"><p class="text-sm text-gray-500 mb-4">Serás redirigido a PayPal.</p><div id="paypal-button-container"></div></div>
       <button onclick="goToStep(1)" class="w-full text-center text-sm text-gray-500 hover:text-brand-500 underline">Volver</button>
     </div>
 
@@ -681,7 +670,7 @@ function closeProductModal() { document.getElementById('productModal').classList
 // ==========================================
 function openCheckout() {
   if(cart.length === 0) return showToast('Carrito vacío', 'error');
-  document.getElementById('checkoutModal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; goToStep(0);
+  document.getElementById('checkoutModal').classList.remove('hidden'); document.body.style.overflow = 'hidden'; goToStep(1);
 }
 function closeCheckout() { document.getElementById('checkoutModal').classList.add('hidden'); document.body.style.overflow = ''; }
 
@@ -717,16 +706,10 @@ function validateStep1() {
 
 function renderPaymentStep() {
     const list = document.getElementById('checkoutSummaryList');
-    list.innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${formatMoney(i.price*i.qty*(isDiscountActive?0.9:1))}</span></div>`).join('');
+    list.innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${formatMoney(i.price*i.qty)}</span></div>`).join('');
     const total = getTotal(true);
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
-    document.getElementById('stripeBtnAmount').textContent = formatMoney(total);
-    
-    const disc = document.getElementById('discountDisplay');
-    if(isDiscountActive) { disc.classList.remove('hidden'); disc.textContent = "Descuento de registro: -10%"; } else { disc.classList.add('hidden'); }
-    
-    document.getElementById('stripeContainer').classList.add('hidden'); document.getElementById('paypalContainer').classList.add('hidden');
-    document.getElementById('btnStripe').classList.remove('border-brand-500','bg-brand-50'); document.getElementById('btnPaypal').classList.remove('border-brand-500','bg-brand-50');
+    renderPaypalButton();
 }
 
 function selectPaymentMethod(m) {
@@ -746,10 +729,11 @@ function selectPaymentMethod(m) {
 function renderPaypalButton() {
     const c = document.getElementById('paypal-button-container');
     if (!c) return;
-    if (!paypalLoaded || !appConfig.payment || !appConfig.payment.paypal_client_id) {
+    if (!paypalLoaded) {
         c.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:13px;">⏳ Cargando PayPal...</div>';
         return;
     }
+    if(c.querySelector('iframe')) return; // ya renderizado
     c.innerHTML = '';
     paypal.Buttons({
         createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: getTotal(true).toFixed(2) } }] }),
