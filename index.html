@@ -310,6 +310,7 @@ tailwind.config = {
   <div class="flex-1 overflow-y-auto p-6" id="cartItems"></div>
   <div id="cartFooter" class="hidden border-t border-rose-100/60 p-6 bg-white/50">
     <div class="flex justify-between mb-2"><span class="text-sm text-brown-300">Subtotal</span><span id="cartSubtotal" class="text-sm font-semibold text-brown-500">0,00 €</span></div>
+    <div class="flex justify-between mb-2"><span class="text-sm text-brown-300">Envío</span><span id="cartShipping" class="text-sm font-semibold text-brown-500">0,00 €</span></div>
     <div class="flex justify-between mb-4 pt-2 border-t border-rose-100/60"><span class="text-base font-bold text-brown-600">Total</span><span id="cartTotal" class="text-lg font-bold text-gradient">0,00 €</span></div>
     <button onclick="openCheckout()" class="w-full shimmer-btn text-white font-semibold py-4 rounded-full hover:shadow-lg transition-shadow flex items-center justify-center gap-2">Proceder al Pago <span class="iconify w-4 h-4" data-icon="lucide:arrow-right"></span></button>
   </div>
@@ -579,8 +580,9 @@ function updateCartUI() {
       </div>
     `).join('');
     document.getElementById('cartFooter').classList.remove('hidden');
-    document.getElementById('cartTotal').textContent = formatMoney(getTotal(false));
-    document.getElementById('cartSubtotal').textContent = formatMoney(getTotal(false));
+    document.getElementById('cartSubtotal').textContent = formatMoney(cart.reduce((a,b)=>a+(b.price*b.qty),0));
+    document.getElementById('cartShipping').textContent = formatMoney(getShipping());
+    document.getElementById('cartTotal').textContent = formatMoney(getTotal());
   }
 }
 
@@ -590,10 +592,12 @@ function updateQty(id, d) {
 }
 function removeFromCart(id) { cart = cart.filter(x => x.id !== id); updateCartUI(); saveCart(); }
 
-function getTotal(applyDisc=true) {
-    let t = cart.reduce((a,b)=>a+(b.price*b.qty),0);
-    if(applyDisc && isDiscountActive) t *= 0.9;
-    return t;
+function getShipping() {
+    return cart.length > 0 ? (appConfig.payment && appConfig.payment.shipping_cost ? appConfig.payment.shipping_cost : 4.99) : 0;
+}
+
+function getTotal() {
+    return cart.reduce((a,b) => a + (b.price * b.qty), 0) + getShipping();
 }
 
 function formatMoney(n) { return n.toLocaleString('es-ES',{style:'currency',currency:'EUR'}); }
@@ -689,9 +693,15 @@ function validateStep1() {
 }
 
 function renderPaymentStep() {
+    const subtotal = cart.reduce((a,b) => a + (b.price * b.qty), 0);
+    const shipping = getShipping();
+    const total = getTotal();
+
     const list = document.getElementById('checkoutSummaryList');
     list.innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${formatMoney(i.price*i.qty)}</span></div>`).join('');
-    const total = getTotal(true);
+    list.innerHTML += `
+        <div class="flex justify-between text-gray-500 mt-1"><span>Envío</span><span>${formatMoney(shipping)}</span></div>`;
+
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
     document.getElementById('paypal-button-container').innerHTML = '';
     renderPaypalButton();
