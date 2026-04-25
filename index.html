@@ -432,7 +432,7 @@ async function fetchConfig() {
 function loadPayPalScript(id) {
     if(paypalLoaded) return;
     const s = document.createElement('script'); s.src = `https://www.paypal.com/sdk/js?client-id=${id}&currency=EUR`;
-    s.onload = () => { paypalLoaded = true; }; document.head.appendChild(s);
+    s.onload = () => { paypalLoaded = true; renderPaypalButton(); }; document.head.appendChild(s);
 }
 
 function loadStripeScript(pk) {
@@ -744,8 +744,13 @@ function selectPaymentMethod(m) {
 }
 
 function renderPaypalButton() {
-    if(!paypalLoaded || !appConfig.payment || !appConfig.payment.paypal_client_id) return;
-    const c = document.getElementById('paypal-button-container'); c.innerHTML = '';
+    const c = document.getElementById('paypal-button-container');
+    if (!c) return;
+    if (!paypalLoaded || !appConfig.payment || !appConfig.payment.paypal_client_id) {
+        c.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:13px;">⏳ Cargando PayPal...</div>';
+        return;
+    }
+    c.innerHTML = '';
     paypal.Buttons({
         createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: getTotal(true).toFixed(2) } }] }),
         onApprove: (d,a) => a.order.capture().then(() => { goToStep(3); completeOrder(); })
