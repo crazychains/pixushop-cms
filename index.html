@@ -6,7 +6,7 @@
 <title>Pixushop — Tu tienda creativa</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=AThV2rxPwzomly-jItwqun5SKVSZb0R63k11hFEL5x_TlVXJ2zgxDKbuyVSV_7KNhd7yyFsrLw1Cry7Z&currency=EUR" onload="paypalLoaded=true;" onerror="console.error('Error cargando SDK PayPal');"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AThV2rxPwzomly-jItwqun5SKVSZb0R63k11hFEL5x_TlVXJ2zgxDKbuyVSV_7KNhd7yyFsrLw1Cry7Z&currency=EUR" onerror="console.error('Error cargando SDK PayPal');"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -369,7 +369,6 @@ tailwind.config = {
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/120px-PayPal.svg.png" alt="PayPal" class="h-7 mx-auto mb-3 object-contain">
         <p class="text-sm text-gray-500 mb-4">Paga de forma segura con PayPal o tarjeta.</p>
         <div id="paypal-button-container"></div>
-        <div id="paypal-debug"></div>
       </div>
       <button onclick="goToStep(1)" class="w-full text-center text-sm text-gray-500 hover:text-brand-500 underline">Volver</button>
     </div>
@@ -389,7 +388,7 @@ const GITHUB_DATA_URL = "https://script.google.com/macros/s/AKfycbxHicS9A7XKtdd5
 let products = [];
 let cart = [];
 let appConfig = {};
-let stripe, paypalLoaded = false, stripeLoaded = false;
+let stripe, stripeLoaded = false;
 let currentUserType = 'guest';
 let isDiscountActive = false;
 
@@ -696,39 +695,15 @@ function renderPaymentStep() {
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
     document.getElementById('paypal-button-container').innerHTML = '';
     renderPaypalButton();
-    mostrarDiagnostico();
-}
-
-function mostrarDiagnostico() {
-    const d = document.getElementById('paypal-debug');
-    if (!d) return;
-    const sdkEnDOM = !!document.querySelector('script[src*="paypal.com/sdk"]');
-    const paypalObj = typeof paypal !== 'undefined';
-    d.innerHTML = `
-        <div style="background:#f8f8f8;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:11px;font-family:monospace;text-align:left;margin-top:8px;">
-            <b>🔍 Diagnóstico PayPal</b><br>
-            Script en DOM: ${sdkEnDOM ? '✅ sí' : '❌ no'}<br>
-            paypalLoaded (flag): ${paypalLoaded ? '✅ true' : '❌ false'}<br>
-            objeto paypal: ${paypalObj ? '✅ disponible' : '❌ no definido'}<br>
-            ${paypalObj && !paypalLoaded ? '⚠️ SDK cargado pero onload no disparó' : ''}
-            ${!sdkEnDOM ? '⚠️ El script no está en el DOM — posible bloqueador' : ''}
-        </div>`;
-    // Forzar el flag si el objeto está disponible aunque onload no disparase
-    if (paypalObj && !paypalLoaded) {
-        paypalLoaded = true;
-        document.getElementById('paypal-button-container').innerHTML = '';
-        renderPaypalButton();
-    }
 }
 
 function renderPaypalButton() {
     const c = document.getElementById('paypal-button-container');
     if (!c) return;
-    if (!paypalLoaded) {
+    if (typeof paypal === 'undefined') {
         c.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:13px;">⏳ Cargando PayPal...</div>';
-        // Reintentar cada 300ms hasta que el SDK esté listo
         const interval = setInterval(() => {
-            if (paypalLoaded) {
+            if (typeof paypal !== 'undefined') {
                 clearInterval(interval);
                 c.innerHTML = '';
                 renderPaypalButton();
@@ -736,7 +711,6 @@ function renderPaypalButton() {
         }, 300);
         return;
     }
-    // Si ya hay un botón renderizado (iframe presente), no duplicar
     if (c.querySelector('iframe')) return;
     c.innerHTML = '';
     paypal.Buttons({
