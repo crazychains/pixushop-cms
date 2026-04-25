@@ -6,7 +6,7 @@
 <title>Pixushop — Tu tienda creativa</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-<!-- SDK de Stripe -->
+<script src="https://www.paypal.com/sdk/js?client-id=AThV2rxPwzomly-jItwqun5SKVSZb0R63k11hFEL5x_TlVXJ2zgxDKbuyVSV_7KNhd7yyFsrLw1Cry7Z&currency=EUR" onload="paypalLoaded=true; renderPaypalButton();" onerror="console.error('Error cargando SDK PayPal');"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -409,26 +409,10 @@ async function fetchConfig() {
     const res = await fetch(CONFIG_URL);
     if(!res.ok) throw new Error("Error config");
     appConfig = await res.json();
-    if(appConfig.messages && appConfig.messages.register_discount) document.getElementById('discountMessage').textContent = appConfig.messages.register_discount;
-    if(appConfig.payment && appConfig.payment.paypal_client_id && appConfig.payment.paypal_client_id !== 'TU_CLIENT_ID_PAYPAL_AQUI') loadPayPalScript(appConfig.payment.paypal_client_id);
-    if(appConfig.payment && appConfig.payment.stripe_key && appConfig.payment.stripe_key !== 'pk_test_TU_CLAVE_STRIPE_AQUI') loadStripeScript(appConfig.payment.stripe_key);
   } catch (e) {
     console.warn("Config error", e);
-    appConfig = { payment: { shipping_cost: 4.99 }, messages: { register_discount: "Regístrate y ahorra." } };
+    appConfig = { payment: { shipping_cost: 4.99 } };
   }
-}
-
-function loadPayPalScript(id) {
-    if(paypalLoaded) return;
-    const s = document.createElement('script'); s.src = `https://www.paypal.com/sdk/js?client-id=${id}&currency=EUR`;
-    s.onload = () => { paypalLoaded = true; renderPaypalButton(); }; document.head.appendChild(s);
-}
-
-function loadStripeScript(pk) {
-    if(stripeLoaded) return;
-    const s = document.createElement('script'); s.src = "https://js.stripe.com/v3/";
-    s.onload = () => { stripe = Stripe(pk); const e = stripe.elements().create('card'); e.mount('#stripe-card-element'); document.getElementById('stripePayBtn').onclick = () => { setTimeout(()=>{goToStep(3); completeOrder();}, 1500); }; };
-    document.head.appendChild(s);
 }
 
 // ==========================================
