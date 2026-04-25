@@ -369,6 +369,7 @@ tailwind.config = {
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/120px-PayPal.svg.png" alt="PayPal" class="h-7 mx-auto mb-3 object-contain">
         <p class="text-sm text-gray-500 mb-4">Paga de forma segura con PayPal o tarjeta.</p>
         <div id="paypal-button-container"></div>
+        <div id="paypal-debug"></div>
       </div>
       <button onclick="goToStep(1)" class="w-full text-center text-sm text-gray-500 hover:text-brand-500 underline">Volver</button>
     </div>
@@ -693,9 +694,31 @@ function renderPaymentStep() {
     list.innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${formatMoney(i.price*i.qty)}</span></div>`).join('');
     const total = getTotal(true);
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
-    // Limpiamos el contenedor siempre al entrar al paso, para forzar un render limpio
     document.getElementById('paypal-button-container').innerHTML = '';
     renderPaypalButton();
+    mostrarDiagnostico();
+}
+
+function mostrarDiagnostico() {
+    const d = document.getElementById('paypal-debug');
+    if (!d) return;
+    const sdkEnDOM = !!document.querySelector('script[src*="paypal.com/sdk"]');
+    const paypalObj = typeof paypal !== 'undefined';
+    d.innerHTML = `
+        <div style="background:#f8f8f8;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:11px;font-family:monospace;text-align:left;margin-top:8px;">
+            <b>🔍 Diagnóstico PayPal</b><br>
+            Script en DOM: ${sdkEnDOM ? '✅ sí' : '❌ no'}<br>
+            paypalLoaded (flag): ${paypalLoaded ? '✅ true' : '❌ false'}<br>
+            objeto paypal: ${paypalObj ? '✅ disponible' : '❌ no definido'}<br>
+            ${paypalObj && !paypalLoaded ? '⚠️ SDK cargado pero onload no disparó' : ''}
+            ${!sdkEnDOM ? '⚠️ El script no está en el DOM — posible bloqueador' : ''}
+        </div>`;
+    // Forzar el flag si el objeto está disponible aunque onload no disparase
+    if (paypalObj && !paypalLoaded) {
+        paypalLoaded = true;
+        document.getElementById('paypal-button-container').innerHTML = '';
+        renderPaypalButton();
+    }
 }
 
 function renderPaypalButton() {
