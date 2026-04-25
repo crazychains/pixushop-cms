@@ -6,7 +6,7 @@
 <title>Pixushop — Tu tienda creativa</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=AThV2rxPwzomly-jItwqun5SKVSZb0R63k11hFEL5x_TlVXJ2zgxDKbuyVSV_7KNhd7yyFsrLw1Cry7Z&currency=EUR" onload="paypalLoaded=true; renderPaypalButton();" onerror="console.error('Error cargando SDK PayPal');"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AThV2rxPwzomly-jItwqun5SKVSZb0R63k11hFEL5x_TlVXJ2zgxDKbuyVSV_7KNhd7yyFsrLw1Cry7Z&currency=EUR" onload="paypalLoaded=true;" onerror="console.error('Error cargando SDK PayPal');"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -693,21 +693,9 @@ function renderPaymentStep() {
     list.innerHTML = cart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>${formatMoney(i.price*i.qty)}</span></div>`).join('');
     const total = getTotal(true);
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
+    // Limpiamos el contenedor siempre al entrar al paso, para forzar un render limpio
+    document.getElementById('paypal-button-container').innerHTML = '';
     renderPaypalButton();
-}
-
-function selectPaymentMethod(m) {
-    const sC = document.getElementById('stripeContainer'); const pC = document.getElementById('paypalContainer');
-    const bS = document.getElementById('btnStripe'); const bP = document.getElementById('btnPaypal');
-    
-    if(m==='stripe') {
-        bS.classList.add('border-brand-500','bg-brand-50'); bP.classList.remove('border-brand-500','bg-brand-50');
-        sC.classList.remove('hidden'); pC.classList.add('hidden');
-    } else {
-        bP.classList.add('border-brand-500','bg-brand-50'); bS.classList.remove('border-brand-500','bg-brand-50');
-        pC.classList.remove('hidden'); sC.classList.add('hidden');
-        renderPaypalButton();
-    }
 }
 
 function renderPaypalButton() {
@@ -715,9 +703,18 @@ function renderPaypalButton() {
     if (!c) return;
     if (!paypalLoaded) {
         c.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:13px;">⏳ Cargando PayPal...</div>';
+        // Reintentar cada 300ms hasta que el SDK esté listo
+        const interval = setInterval(() => {
+            if (paypalLoaded) {
+                clearInterval(interval);
+                c.innerHTML = '';
+                renderPaypalButton();
+            }
+        }, 300);
         return;
     }
-    if(c.querySelector('iframe')) return; // ya renderizado
+    // Si ya hay un botón renderizado (iframe presente), no duplicar
+    if (c.querySelector('iframe')) return;
     c.innerHTML = '';
     paypal.Buttons({
         createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: getTotal(true).toFixed(2) } }] }),
