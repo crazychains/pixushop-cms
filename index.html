@@ -408,6 +408,7 @@ const GITHUB_DATA_URL = "https://script.google.com/macros/s/AKfycbxHicS9A7XKtdd5
 let products = [];
 let cart = [];
 let appConfig = {};
+let paypalReady = null;
 let stripe, stripeLoaded = false;
 let currentUserType = 'guest';
 let isDiscountActive = false;
@@ -436,12 +437,17 @@ async function fetchConfig() {
     // Cargar SDK de PayPal dinámicamente con el client-id del config.json
   const clientId = appConfig.payment && appConfig.payment.paypal_client_id;
   if (clientId) {
-    const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=EUR&locale=es_ES`;
-    script.onerror = () => console.error('Error cargando SDK PayPal');
-    document.head.appendChild(script);
+    paypalReady = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=EUR&locale=es_ES`;
+      script.onload  = () => resolve();
+      script.onerror = () => reject(new Error('Error cargando SDK PayPal'));
+      document.head.appendChild(script);
+    });
+    paypalReady.catch(e => console.error(e));
   } else {
     console.warn('No se encontró paypal_client_id en config.json');
+    paypalReady = Promise.reject(new Error('Sin paypal_client_id'));
   }
 }
 
@@ -736,18 +742,21 @@ function renderPaymentStep() {
     renderPaypalButton();
 }
 
-function renderPaypalButton() {
+async function renderPaypalButton() {
     const c = document.getElementById('paypal-button-container');
     if (!c) return;
-    if (typeof paypal === 'undefined') {
-        c.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:13px;">⏳ Cargando PayPal...</div>';
-        const interval = setInterval(() => {
-            if (typeof paypal !== 'undefined') {
-                clearInterval(interval);
-                c.innerHTML = '';
-                renderPaypalButton();
-            }
-        }, 300);
+    if (c.querySelector('iframe')) return;
+
+    // Esperar a que el SDK de PayPal esté listo
+    if (!paypalReady) {
+        c.innerHTML = '<div style="text-align:center;padding:12px;color:#f00;font-size:13px;">⚠️ PayPal no configurado.</div>';
+        return;
+    }
+    c.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:13px;">⏳ Cargando PayPal...</div>';
+    try {
+        await paypalReady;
+    } catch(e) {
+        c.innerHTML = '<div style="text-align:center;padding:12px;color:#f00;font-size:13px;">⚠️ Error cargando PayPal.</div>';
         return;
     }
     if (c.querySelector('iframe')) return;
