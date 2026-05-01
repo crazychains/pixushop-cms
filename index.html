@@ -6,6 +6,7 @@
 <title>Pixushop — Tu tienda creativa</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AThV2rxPwzomly-jItwqun5SKVSZb0R63k11hFEL5x_TlVXJ2zgxDKbuyVSV_7KNhd7yyFsrLw1Cry7Z&currency=EUR&locale=es_ES" onerror="console.error('Error cargando SDK PayPal');"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -408,7 +409,6 @@ const GITHUB_DATA_URL = "https://script.google.com/macros/s/AKfycbxHicS9A7XKtdd5
 let products = [];
 let cart = [];
 let appConfig = {};
-let paypalReady = null;
 let stripe, stripeLoaded = false;
 let currentUserType = 'guest';
 let isDiscountActive = false;
@@ -433,21 +433,6 @@ async function fetchConfig() {
   } catch (e) {
     console.warn("Config error", e);
     appConfig = { payment: { shipping_cost: 4.99 } };
-  }
-    // Cargar SDK de PayPal dinámicamente con el client-id del config.json
-  const clientId = appConfig.payment && appConfig.payment.paypal_client_id;
-  if (clientId) {
-    paypalReady = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=EUR&locale=es_ES`;
-      script.onload  = () => resolve();
-      script.onerror = () => reject(new Error('Error cargando SDK PayPal'));
-      document.head.appendChild(script);
-    });
-    paypalReady.catch(e => console.error(e));
-  } else {
-    console.warn('No se encontró paypal_client_id en config.json');
-    paypalReady = Promise.reject(new Error('Sin paypal_client_id'));
   }
 }
 
@@ -738,34 +723,26 @@ function renderPaymentStep() {
         <div class="flex justify-between text-gray-500 mt-1"><span>Envío</span><span>${formatMoney(shipping)}</span></div>`;
 
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
-
-    // Reemplazar completamente el contenedor para eliminar cualquier iframe/botón previo
-    const old = document.getElementById('paypal-button-container');
-    const fresh = document.createElement('div');
-    fresh.id = 'paypal-button-container';
-    old.parentNode.replaceChild(fresh, old);
-
+    document.getElementById('paypal-button-container').innerHTML = '';
     renderPaypalButton();
 }
 
-async function renderPaypalButton() {
+function renderPaypalButton() {
     const c = document.getElementById('paypal-button-container');
     if (!c) return;
-
-    // Esperar a que el SDK de PayPal esté listo
-    if (!paypalReady) {
-        c.innerHTML = '<div style="text-align:center;padding:12px;color:#f00;font-size:13px;">⚠️ PayPal no configurado.</div>';
+    if (typeof paypal === 'undefined') {
+        c.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:13px;">⏳ Cargando PayPal...</div>';
+        const interval = setInterval(() => {
+            if (typeof paypal !== 'undefined') {
+                clearInterval(interval);
+                c.innerHTML = '';
+                renderPaypalButton();
+            }
+        }, 300);
         return;
     }
-    c.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:13px;">⏳ Cargando PayPal...</div>';
-    try {
-        await paypalReady;
-    } catch(e) {
-        c.innerHTML = '<div style="text-align:center;padding:12px;color:#f00;font-size:13px;">⚠️ Error cargando PayPal: ' + e.message + '</div>';
-        return;
-    }
+    if (c.querySelector('iframe')) return;
     c.innerHTML = '';
-
     paypal.Buttons({
         createOrder: (data, actions) => {
             const shipping = getShipping();
@@ -794,12 +771,7 @@ async function renderPaypalButton() {
                 }]
             });
         },
-        onApprove: (data, actions) => actions.order.capture().then(() => { goToStep(3); completeOrder(); }),
-        onError:   (err) => {
-            console.error('PayPal error:', err);
-            const c2 = document.getElementById('paypal-button-container');
-            if (c2) c2.innerHTML = '<div style="text-align:center;padding:12px;color:#f00;font-size:13px;">⚠️ Error en el pago. Inténtalo de nuevo.</div>';
-        }
+        onApprove: (d,a) => a.order.capture().then(() => { goToStep(3); completeOrder(); })
     }).render('#paypal-button-container');
 }
 
