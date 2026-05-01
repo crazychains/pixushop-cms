@@ -738,14 +738,19 @@ function renderPaymentStep() {
         <div class="flex justify-between text-gray-500 mt-1"><span>Envío</span><span>${formatMoney(shipping)}</span></div>`;
 
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
-    document.getElementById('paypal-button-container').innerHTML = '';
+
+    // Reemplazar completamente el contenedor para eliminar cualquier iframe/botón previo
+    const old = document.getElementById('paypal-button-container');
+    const fresh = document.createElement('div');
+    fresh.id = 'paypal-button-container';
+    old.parentNode.replaceChild(fresh, old);
+
     renderPaypalButton();
 }
 
 async function renderPaypalButton() {
     const c = document.getElementById('paypal-button-container');
     if (!c) return;
-    if (c.querySelector('iframe')) return;
 
     // Esperar a que el SDK de PayPal esté listo
     if (!paypalReady) {
@@ -756,16 +761,16 @@ async function renderPaypalButton() {
     try {
         await paypalReady;
     } catch(e) {
-        c.innerHTML = '<div style="text-align:center;padding:12px;color:#f00;font-size:13px;">⚠️ Error cargando PayPal.</div>';
+        c.innerHTML = '<div style="text-align:center;padding:12px;color:#f00;font-size:13px;">⚠️ Error cargando PayPal: ' + e.message + '</div>';
         return;
     }
-    if (c.querySelector('iframe')) return;
     c.innerHTML = '';
+
     paypal.Buttons({
-        createOrder: (d,a) => {
+        createOrder: (data, actions) => {
             const shipping = getShipping();
             const subtotal = cart.reduce((a,b) => a + (b.price * b.qty), 0);
-            const total = subtotal + shipping;
+            const total    = subtotal + shipping;
 
             const items = cart.map(i => ({
                 name: i.name,
@@ -774,22 +779,27 @@ async function renderPaypalButton() {
                 quantity: String(i.qty)
             }));
 
-            return a.order.create({
+            return actions.order.create({
                 purchase_units: [{
                     description: cart.map(i => `${i.qty}x ${i.name}`).join(', '),
                     amount: {
                         currency_code: 'EUR',
                         value: total.toFixed(2),
                         breakdown: {
-                            item_total:   { currency_code: 'EUR', value: subtotal.toFixed(2) },
-                            shipping:     { currency_code: 'EUR', value: shipping.toFixed(2) }
+                            item_total: { currency_code: 'EUR', value: subtotal.toFixed(2) },
+                            shipping:   { currency_code: 'EUR', value: shipping.toFixed(2) }
                         }
                     },
                     items: items
                 }]
             });
         },
-        onApprove: (d,a) => a.order.capture().then(() => { goToStep(3); completeOrder(); })
+        onApprove: (data, actions) => actions.order.capture().then(() => { goToStep(3); completeOrder(); }),
+        onError:   (err) => {
+            console.error('PayPal error:', err);
+            const c2 = document.getElementById('paypal-button-container');
+            if (c2) c2.innerHTML = '<div style="text-align:center;padding:12px;color:#f00;font-size:13px;">⚠️ Error en el pago. Inténtalo de nuevo.</div>';
+        }
     }).render('#paypal-button-container');
 }
 
