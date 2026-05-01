@@ -744,41 +744,7 @@ function renderPaypalButton() {
     if (c.querySelector('iframe')) return;
     c.innerHTML = '';
     paypal.Buttons({
-       createOrder: (data, actions) => {
-
-    const items = cart.map(item => ({
-        name: item.name,
-        unit_amount: {
-            currency_code: "EUR",
-            value: Number(item.price).toFixed(2)
-        },
-        quantity: item.qty.toString(),
-        sku: item.id.toString()
-    }));
-
-    const subtotal = cart.reduce((a,b)=>a+(b.price*b.qty),0);
-
-    return actions.order.create({
-        purchase_units: [{
-            description: "Compra en Pixushop",
-            amount: {
-                currency_code: "EUR",
-                value: getTotal().toFixed(2),
-                breakdown: {
-                    item_total: {
-                        currency_code: "EUR",
-                        value: subtotal.toFixed(2)
-                    },
-                    shipping: {
-                        currency_code: "EUR",
-                        value: getShipping().toFixed(2)
-                    }
-                }
-            },
-            items: items
-        }]
-    });
-}
+        createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: getTotal(true).toFixed(2) } }] }),
         onApprove: (d,a) => a.order.capture().then(() => { goToStep(3); completeOrder(); })
     }).render('#paypal-button-container');
 }
