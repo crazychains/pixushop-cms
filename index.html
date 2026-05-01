@@ -744,7 +744,33 @@ function renderPaypalButton() {
     if (c.querySelector('iframe')) return;
     c.innerHTML = '';
     paypal.Buttons({
-        createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: getTotal(true).toFixed(2) } }] }),
+        createOrder: (d,a) => {
+            const shipping = getShipping();
+            const subtotal = cart.reduce((a,b) => a + (b.price * b.qty), 0);
+            const total = subtotal + shipping;
+
+            const items = cart.map(i => ({
+                name: i.name,
+                sku: String(i.id),
+                unit_amount: { currency_code: 'EUR', value: i.price.toFixed(2) },
+                quantity: String(i.qty)
+            }));
+
+            return a.order.create({
+                purchase_units: [{
+                    description: cart.map(i => `${i.qty}x ${i.name}`).join(', '),
+                    amount: {
+                        currency_code: 'EUR',
+                        value: total.toFixed(2),
+                        breakdown: {
+                            item_total:   { currency_code: 'EUR', value: subtotal.toFixed(2) },
+                            shipping:     { currency_code: 'EUR', value: shipping.toFixed(2) }
+                        }
+                    },
+                    items: items
+                }]
+            });
+        },
         onApprove: (d,a) => a.order.capture().then(() => { goToStep(3); completeOrder(); })
     }).render('#paypal-button-container');
 }
