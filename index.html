@@ -6,7 +6,7 @@
 <title>Pixushop — Tu tienda creativa</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=AXjB902mghTJRdAMPqA4I0j1W6t7NgvYmZBDxvfMP0dBZ4IQ6OYeB5xGf4gJzDFyvvdpZTNEXfWq5TV7&currency=EUR&locale=es_ES" onerror="console.error('Error cargando SDK PayPal');"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AThV2rxPwzomly-jItwqun5SKVSZb0R63k11hFEL5x_TlVXJ2zgxDKbuyVSV_7KNhd7yyFsrLw1Cry7Z&currency=EUR&locale=es_ES" onerror="console.error('Error cargando SDK PayPal');"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
 tailwind.config = {
@@ -744,7 +744,41 @@ function renderPaypalButton() {
     if (c.querySelector('iframe')) return;
     c.innerHTML = '';
     paypal.Buttons({
-        createOrder: (d,a) => a.order.create({ purchase_units: [{ amount: { value: getTotal(true).toFixed(2) } }] }),
+       createOrder: (data, actions) => {
+
+    const items = cart.map(item => ({
+        name: item.name,
+        unit_amount: {
+            currency_code: "EUR",
+            value: Number(item.price).toFixed(2)
+        },
+        quantity: item.qty.toString(),
+        sku: item.id.toString()
+    }));
+
+    const subtotal = cart.reduce((a,b)=>a+(b.price*b.qty),0);
+
+    return actions.order.create({
+        purchase_units: [{
+            description: "Compra en Pixushop",
+            amount: {
+                currency_code: "EUR",
+                value: getTotal().toFixed(2),
+                breakdown: {
+                    item_total: {
+                        currency_code: "EUR",
+                        value: subtotal.toFixed(2)
+                    },
+                    shipping: {
+                        currency_code: "EUR",
+                        value: getShipping().toFixed(2)
+                    }
+                }
+            },
+            items: items
+        }]
+    });
+}
         onApprove: (d,a) => a.order.capture().then(() => { goToStep(3); completeOrder(); })
     }).render('#paypal-button-container');
 }
