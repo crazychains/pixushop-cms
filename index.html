@@ -853,6 +853,15 @@ function renderPaypalButton() {
             return actions.order.create({
                 purchase_units: [{
                     description: cart.map(i => `${i.qty}x ${i.name}`).join(', '),
+                  shipping: {
+                    name: { full_name: document.getElementById('checkoutName').value.trim() },
+                    address: {
+                    address_line_1: document.getElementById('checkoutAddress').value.trim(),
+                    admin_area_2:   document.getElementById('checkoutCity').value.trim(),
+                    postal_code:    document.getElementById('checkoutZip').value.trim(),
+                    country_code:   'ES'
+                        }
+                    },
                     amount: {
                         currency_code: 'EUR',
                         value: total.toFixed(2),
@@ -863,6 +872,9 @@ function renderPaypalButton() {
                     },
                     items: items
                 }]
+              payer: {
+                email_address: document.getElementById('checkoutEmail').value.trim()
+              },
             }).then(orderID => {
                 ppLog('ok', `createOrder: orden creada correctamente. ID=${orderID}`);
                 return orderID;
