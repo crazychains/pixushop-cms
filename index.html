@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
 <script src="https://www.paypal.com/sdk/js?client-id=AThV2rxPwzomly-jItwqun5SKVSZb0R63k11hFEL5x_TlVXJ2zgxDKbuyVSV_7KNhd7yyFsrLw1Cry7Z&currency=EUR&locale=es_ES" onerror="console.error('Error cargando SDK PayPal');"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Pacifico&family=Satisfy&display=swap" rel="stylesheet">
 <script>
@@ -465,6 +466,7 @@ let isDiscountActive = false;
 // INIT
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+  emailjs.init('VUZVv4RyfarlufvmY');
   fetchConfig();
   fetchProducts();
   loadCart();
@@ -889,8 +891,18 @@ function renderPaypalButton() {
             ppLog('ok', `onApprove: orden aprobada. OrderID=${data.orderID}`);
             return actions.order.capture().then(details => {
                 ppLog('ok', `onApprove: captura OK. Pagador: ${details.payer && details.payer.email_address ? details.payer.email_address : 'desconocido'}`);
-                goToStep(3);
-                completeOrder();
+            const nombre = document.getElementById('checkoutName').value.trim();
+            const email_comprador = document.getElementById('checkoutEmail').value.trim();
+            const direccion = `${document.getElementById('checkoutAddress').value.trim()}, ${document.getElementById('checkoutCity').value.trim()}, ${document.getElementById('checkoutZip').value.trim()}, España`;
+            const items = cart.map(i => `• ${i.qty}x ${i.name} — ${formatMoney(i.price * i.qty)}`).join('\n')
+              + `\n─────────────────────\nSubtotal: ${formatMoney(cart.reduce((a,b) => a + b.price * b.qty, 0))}\nEnvío: ${formatMoney(getShipping())}\nTotal: ${formatMoney(getTotal())}`;
+
+            const templateParams = { nombre, email_comprador, order_id: data.orderID, items, direccion };
+
+            emailjs.send('service_eag44wf', 'template_61qmspu', { ...templateParams, to_email: email_comprador });
+            emailjs.send('service_eag44wf', 'template_w4j8gke', templateParams);
+            goToStep(3);
+            completeOrder();
             }).catch(err => {
                 ppLog('error', `onApprove capture ERROR: ${err && err.message ? err.message : JSON.stringify(err)}`);
             });
