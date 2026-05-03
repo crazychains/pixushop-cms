@@ -851,15 +851,18 @@ function renderPaypalButton() {
             ppLog('info', `createOrder: ${items.length} línea(s): ${items.map(i=>i.name).join(', ')}`);
 
             return actions.order.create({
+                payer: {
+                    email_address: document.getElementById('checkoutEmail').value.trim()
+                },
                 purchase_units: [{
                     description: cart.map(i => `${i.qty}x ${i.name}`).join(', '),
-                  shipping: {
-                    name: { full_name: document.getElementById('checkoutName').value.trim() },
-                    address: {
-                    address_line_1: document.getElementById('checkoutAddress').value.trim(),
-                    admin_area_2:   document.getElementById('checkoutCity').value.trim(),
-                    postal_code:    document.getElementById('checkoutZip').value.trim(),
-                    country_code:   'ES'
+                    shipping: {
+                        name: { full_name: document.getElementById('checkoutName').value.trim() },
+                        address: {
+                            address_line_1: document.getElementById('checkoutAddress').value.trim(),
+                            admin_area_2:   document.getElementById('checkoutCity').value.trim(),
+                            postal_code:    document.getElementById('checkoutZip').value.trim(),
+                            country_code:   'ES'
                         }
                     },
                     amount: {
@@ -872,9 +875,6 @@ function renderPaypalButton() {
                     },
                     items: items
                 }]
-              payer: {
-                email_address: document.getElementById('checkoutEmail').value.trim()
-              },
             }).then(orderID => {
                 ppLog('ok', `createOrder: orden creada correctamente. ID=${orderID}`);
                 return orderID;
