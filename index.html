@@ -499,7 +499,7 @@ async function fetchProducts() {
 
     // Aseguramos que sea un array
     if (!Array.isArray(visibleProducts)) throw new Error("Formato incorrecto");
-    products = visibleProducts;
+    products = visibleProducts.map(p => ({ ...p, price: parseFloat(p.price) }));
 
     // 2. LÓGICA DE PORTADA (TOP 10)
     // CORRECCIÓN: Buscamos EXPLÍCITAMENTE en la columna 'orden' para no confundir con 'reviews'
