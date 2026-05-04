@@ -70,55 +70,12 @@ tailwind.config = {
     font-family: 'Satisfy', cursive;
 }
 
-/* ====== PAYPAL DEBUG LOG ====== */
-#ppDebugPanel {
-  position: fixed; bottom: 16px; left: 16px; z-index: 9999;
-  width: 380px; max-width: calc(100vw - 32px);
-  background: #0f172a; color: #e2e8f0;
-  border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  font-family: 'Courier New', monospace; font-size: 11px;
-  display: none; flex-direction: column; overflow: hidden;
-}
-#ppDebugPanel.visible { display: flex; }
-#ppDebugHeader {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 8px 12px; background: #1e293b; cursor: pointer;
-}
-#ppDebugHeader span { font-weight: bold; color: #38bdf8; font-size: 12px; }
-#ppDebugLog {
-  max-height: 220px; overflow-y: auto;
-  padding: 8px 12px; display: flex; flex-direction: column; gap: 3px;
-}
-.pplog-info  { color: #7dd3fc; }
-.pplog-ok    { color: #86efac; }
-.pplog-warn  { color: #fde68a; }
-.pplog-error { color: #fca5a5; }
-#ppDebugToggle { 
-  position: fixed; bottom: 16px; left: 16px; z-index: 9998;
-  background: #0ea5e9; color: white; border: none; border-radius: 8px;
-  padding: 6px 12px; font-size: 11px; cursor: pointer; display: none;
-}
-#ppDebugToggle.visible { display: block; }
 </style>
 </head>
 <body class="text-brown-600 antialiased">
 
 <!-- TOAST -->
 <div id="toastContainer" class="fixed top-24 right-4 z-[100] flex flex-col gap-3 pointer-events-none"></div>
-
-<!-- PAYPAL DEBUG PANEL -->
-<button id="ppDebugToggle" onclick="document.getElementById('ppDebugPanel').classList.toggle('visible')">🔍 PayPal Log</button>
-<div id="ppDebugPanel">
-  <div id="ppDebugHeader" onclick="document.getElementById('ppDebugPanel').classList.toggle('visible')">
-    <span>🔍 PayPal Debug Log</span>
-    <span style="color:#94a3b8;font-size:10px;">clic para cerrar</span>
-  </div>
-  <div id="ppDebugLog"></div>
-  <div style="padding:4px 12px 8px;display:flex;gap:8px;">
-    <button onclick="document.getElementById('ppDebugLog').innerHTML=''" style="font-size:10px;background:#334155;color:#94a3b8;border:none;border-radius:4px;padding:3px 8px;cursor:pointer;">Limpiar</button>
-    <button onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('ppDebugLog').innerText)" style="font-size:10px;background:#334155;color:#94a3b8;border:none;border-radius:4px;padding:3px 8px;cursor:pointer;">Copiar</button>
-  </div>
-</div>
 
 <!-- NAVBAR -->
 <nav class="fixed top-0 left-0 right-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-rose-100/60 transition-all" id="navbar">
@@ -775,48 +732,28 @@ function renderPaymentStep() {
     document.getElementById('checkoutTotalAmount').textContent = formatMoney(total);
     document.getElementById('paypal-button-container').innerHTML = '';
 
-    // Activar el panel de debug
-    document.getElementById('ppDebugPanel').classList.add('visible');
-    document.getElementById('ppDebugToggle').classList.add('visible');
-    ppLog('info', '--- Iniciando renderizado de PayPal ---');
-    ppLog('info', `Total: ${total.toFixed(2)} EUR | Items: ${cart.length}`);
 
     renderPaypalButton();
 }
 
-// ── Logger de debug ──────────────────────────────────────────────────────────
-function ppLog(type, msg) {
-    const log = document.getElementById('ppDebugLog');
-    if (!log) return;
-    const ts = new Date().toLocaleTimeString('es-ES');
-    const line = document.createElement('div');
-    line.className = `pplog-${type}`;
-    line.textContent = `[${ts}] ${msg}`;
-    log.appendChild(line);
-    log.scrollTop = log.scrollHeight;
-    console[type === 'error' ? 'error' : type === 'warn' ? 'warn' : 'log']('[PayPal]', msg);
-}
 
 function renderPaypalButton() {
     const c = document.getElementById('paypal-button-container');
-    if (!c) { ppLog('error', 'ERROR: #paypal-button-container no encontrado en el DOM'); return; }
+    if (!c) { return; }
 
     // Comprobar que el SDK está cargado
     if (typeof paypal === 'undefined') {
-        ppLog('warn', 'SDK PayPal aún no disponible, reintentando...');
         c.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:13px;">⏳ Cargando PayPal...</div>';
         let attempts = 0;
         const interval = setInterval(() => {
             attempts++;
             if (typeof paypal !== 'undefined') {
                 clearInterval(interval);
-                ppLog('ok', `SDK PayPal disponible tras ${attempts} intento(s)`);
                 c.innerHTML = '';
                 renderPaypalButton();
             } else if (attempts >= 20) {
                 clearInterval(interval);
-                ppLog('error', 'TIMEOUT: SDK PayPal no cargó en 6 segundos. Revisa la consola del navegador y el client-id.');
-                c.innerHTML = '<div style="text-align:center;padding:12px;color:#e00;font-size:13px;">❌ No se pudo cargar PayPal</div>';
+                    c.innerHTML = '<div style="text-align:center;padding:12px;color:#e00;font-size:13px;">❌ No se pudo cargar PayPal</div>';
             }
         }, 300);
         return;
@@ -825,7 +762,6 @@ function renderPaypalButton() {
     // ── IMPORTANTE: limpiar siempre antes de renderizar ──────────────────────
     // El check de iframe previo impedía re-renderizar si se volvía al paso de pago
     c.innerHTML = '';
-    ppLog('info', 'Llamando a paypal.Buttons().render()...');
 
     paypal.Buttons({
         style: {
@@ -837,7 +773,6 @@ function renderPaypalButton() {
 
         // ── Crear la orden ─────────────────────────────────────────────────
         createOrder: (data, actions) => {
-            ppLog('info', 'createOrder: iniciado');
             const shipping = getShipping();
             const subtotal = cart.reduce((a,b) => a + (b.price * b.qty), 0);
             const total    = subtotal + shipping;
@@ -849,8 +784,6 @@ function renderPaypalButton() {
                 quantity:    String(i.qty)
             }));
 
-            ppLog('info', `createOrder: subtotal=${subtotal.toFixed(2)}, envío=${shipping.toFixed(2)}, total=${total.toFixed(2)}`);
-            ppLog('info', `createOrder: ${items.length} línea(s): ${items.map(i=>i.name).join(', ')}`);
 
             return actions.order.create({
                 payer: {
@@ -878,20 +811,16 @@ function renderPaypalButton() {
                     items: items
                 }]
             }).then(orderID => {
-                ppLog('ok', `createOrder: orden creada correctamente. ID=${orderID}`);
-                return orderID;
+                    return orderID;
             }).catch(err => {
-                ppLog('error', `createOrder ERROR: ${err && err.message ? err.message : JSON.stringify(err)}`);
                 throw err;
             });
         },
 
         // ── Aprobado por el usuario ────────────────────────────────────────
         onApprove: (data, actions) => {
-            ppLog('ok', `onApprove: orden aprobada. OrderID=${data.orderID}`);
             return actions.order.capture().then(details => {
-                ppLog('ok', `onApprove: captura OK. Pagador: ${details.payer && details.payer.email_address ? details.payer.email_address : 'desconocido'}`);
-            const nombre = document.getElementById('checkoutName').value.trim();
+                const nombre = document.getElementById('checkoutName').value.trim();
             const email_comprador = document.getElementById('checkoutEmail').value.trim();
             const direccion = `${document.getElementById('checkoutAddress').value.trim()}, ${document.getElementById('checkoutCity').value.trim()}, ${document.getElementById('checkoutZip').value.trim()}, España`;
             const items = cart.map(i => `• ${i.qty}x ${i.name} — ${formatMoney(i.price * i.qty)}`).join('\n')
@@ -904,28 +833,21 @@ function renderPaypalButton() {
             goToStep(3);
             completeOrder();
             }).catch(err => {
-                ppLog('error', `onApprove capture ERROR: ${err && err.message ? err.message : JSON.stringify(err)}`);
             });
         },
 
         // ── Cancelación por el usuario ─────────────────────────────────────
         onCancel: (data) => {
-            ppLog('warn', `onCancel: el usuario canceló el pago. OrderID=${data.orderID || 'n/a'}`);
         },
 
         // ── Error del SDK / botón ──────────────────────────────────────────
         onError: (err) => {
-            ppLog('error', `onError: ${err && err.message ? err.message : JSON.stringify(err)}`);
-            ppLog('warn', 'Pistas: ¿client-id de sandbox en producción? ¿dominio no autorizado? ¿moneda no compatible?');
         }
 
     }).render('#paypal-button-container')
       .then(() => {
-          ppLog('ok', 'Botones PayPal renderizados correctamente en el DOM');
-      })
+        })
       .catch(err => {
-          ppLog('error', `render() falló: ${err && err.message ? err.message : JSON.stringify(err)}`);
-          ppLog('warn', 'El contenedor puede estar oculto (display:none) en el momento del render. Asegúrate de que el step2 sea visible antes de llamar a renderPaypalButton().');
       });
 }
 
