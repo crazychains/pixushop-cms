@@ -1,33 +1,30 @@
-name: Renovar No-IP
+name: Actualizar No-IP
 
 on:
   schedule:
-    # Se ejecuta cada 25 días a las 9:00 UTC (día 1 y 26 de cada mes aproximadamente)
-    # Cron: minuto hora día mes díasemana
-    - cron: "0 9 1,26 * *"
-
-  # Permite ejecutarlo manualmente desde GitHub si necesitas forzar la renovación
-  workflow_dispatch:
+    # Se ejecuta cada hora (puedes cambiar '0 * * * *' por lo que prefieras)
+    - cron: '0 * * * *' 
+  workflow_dispatch: # Botón para ejecutar manualmente
 
 jobs:
-  renew:
-    name: Confirmar hostname en No-IP
+  update-dns:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Descargar repositorio
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configurar Python
-        uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: '3.x'
 
-      - name: Instalar dependencias
+      - name: Install dependencies
         run: pip install requests
 
-      - name: Ejecutar renovación
+      - name: Run No-IP Update Script
         env:
+          # Aquí conectamos tus Secrets existentes con las variables del script
           NOIP_USERNAME: ${{ secrets.NOIP_USERNAME }}
           NOIP_PASSWORD: ${{ secrets.NOIP_PASSWORD }}
-        run: python noip_renew.py
+          NOIP_HOSTS: ${{ secrets.NOIP_HOSTS }}
+        run: python tu_script.py
