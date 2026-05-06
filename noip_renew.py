@@ -11,7 +11,7 @@ if not USERNAME or not PASSWORD:
     print("ERROR: Faltan las variables de entorno NOIP_USERNAME o NOIP_PASSWORD")
     sys.exit(1)
 
-BASE_URL = "https://www.noip.com"
+BASE_URL = "https://www.noip.com/es-MX"
 
 def log(msg):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}")
